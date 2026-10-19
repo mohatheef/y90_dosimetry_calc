@@ -259,10 +259,10 @@ class Y90RequestHandler(SimpleHTTPRequestHandler):
             self._send_json_response({"error": str(e)}, status=400)
 
 
-def run_server(port: int = 8080):
-    server_address = ("127.0.0.1", port)
+def run_server(host: str = "localhost", port: int = 8080):
+    server_address = (host, port)
     httpd = HTTPServer(server_address, Y90RequestHandler)
-    print(f"Y-90 Dosimetry Web App server running on http://127.0.0.1:{port}")
+    print(f"Y-90 Dosimetry Web App server running on http://{host}:{port}")
     try:
         httpd.serve_forever()
     except KeyboardInterrupt:
@@ -271,5 +271,13 @@ def run_server(port: int = 8080):
 
 
 if __name__ == "__main__":
-    p = int(sys.argv[1]) if len(sys.argv) > 1 else 8080
-    run_server(p)
+    h = "localhost"
+    p = 8080
+    if len(sys.argv) > 1:
+        if sys.argv[1].isdigit():
+            p = int(sys.argv[1])
+        else:
+            h = sys.argv[1]
+            if len(sys.argv) > 2 and sys.argv[2].isdigit():
+                p = int(sys.argv[2])
+    run_server(host=h, port=p)
