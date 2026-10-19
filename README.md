@@ -98,11 +98,11 @@ $$\text{LSF} [\%] = \frac{G_{\text{lung}}}{G_{\text{lung}} + G_{\text{liver}}} \
 Launch the local interactive dashboard:
 
 ```bash
-# Default (localhost:8080)
+# Default (localhost:port)
 python3 web_app/server.py
 
 # Or specify custom host and port:
-python3 web_app/server.py localhost 8765
+python3 web_app/server.py localhost port
 ```
 
 Then open your browser to:
