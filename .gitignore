@@ -1,0 +1,24 @@
+# Vendor / Original Workflows & Archives (DO NOT COMMIT)
+Y90_*
+*.zip
+*.mwf5
+*.xwf5
+*.sam
+*.mhp
+*.mrt
+*.pub
+*.sig
+*.png
+
+# Python & Environment
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.env
+venv/
+.venv/
+
+# OS Files
+.DS_Store
+Thumbs.db
