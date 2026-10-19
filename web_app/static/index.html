@@ -734,6 +734,292 @@
             calculateLungShunt();
         }
 
+        // Universal API Caller with Automatic In-Browser Fallback (GitHub Pages Ready)
+        async function callApiOrFallback(endpoint, payload, fallbackFn) {
+            try {
+                const res = await fetch(endpoint, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(payload)
+                });
+                if (res.ok) {
+                    const data = await res.json();
+                    if (!data.error) return data;
+                }
+            } catch(e) {
+                // Running in pure static/GitHub Pages environment
+            }
+            return fallbackFn(payload);
+        }
+
+        // --- Client-Side Dosimetry Mathematical Models ---
+        function clientCalculatePartition(payload) {
+            const target_volume_cc = payload.target_volume_cc;
+            const tumor_volume_cc = payload.tumor_volume_cc;
+            const tnr = payload.tnr;
+            const lsf = payload.lung_shunt_pct / 100.0;
+            const desired_tumor_dose_gy = payload.desired_tumor_dose_gy;
+            const normal_liver_dose_limit_gy = payload.normal_liver_dose_limit_gy;
+            const lung_dose_limit_gy = payload.lung_dose_limit_gy || 30.0;
+
+            const normal_volume_cc = Math.max(0, target_volume_cc - tumor_volume_cc);
+            const tumor_mass_kg = (tumor_volume_cc * 1.05) / 1000.0;
+            const normal_mass_kg = (normal_volume_cc * 1.05) / 1000.0;
+            const lung_mass_kg = 1.0;
+            const DOSE_CONST = 49.67;
+
+            const denominator = (tnr * tumor_mass_kg) + normal_mass_kg;
+            const act_nl_limit = (normal_liver_dose_limit_gy * denominator) / (DOSE_CONST * (1.0 - lsf));
+            const act_tumor_target = (desired_tumor_dose_gy * denominator) / (DOSE_CONST * tnr * (1.0 - lsf));
+            const act_lung_limit = lsf > 0 ? (lung_dose_limit_gy * lung_mass_kg) / (DOSE_CONST * lsf) : 999.0;
+
+            const max_safe_act = Math.min(act_nl_limit, act_lung_limit);
+            const recommended_act = Math.min(act_tumor_target, max_safe_act);
+
+            const act_liver = recommended_act * (1.0 - lsf);
+            const act_normal = (act_liver * normal_mass_kg) / denominator;
+            const act_tumor = (act_liver * tnr * tumor_mass_kg) / denominator;
+            const act_lung = recommended_act * lsf;
+
+            const dose_normal = (DOSE_CONST * act_normal) / normal_mass_kg;
+            const dose_tumor = (DOSE_CONST * act_tumor) / tumor_mass_kg;
+            const dose_lung = (DOSE_CONST * act_lung) / lung_mass_kg;
+
+            return {
+                tumor_volume_cc: tumor_volume_cc,
+                normal_liver_volume_cc: normal_volume_cc,
+                tumor_mass_kg: tumor_mass_kg,
+                normal_liver_mass_kg: normal_mass_kg,
+                recommended_activity_gbq: recommended_act,
+                recommended_activity_mbq: recommended_act * 1000.0,
+                recommended_doses: {
+                    tumor_dose_gy: dose_tumor,
+                    normal_liver_dose_gy: dose_normal,
+                    lung_dose_gy: dose_lung,
+                    tumor_activity_gbq: act_tumor,
+                    normal_liver_activity_gbq: act_normal,
+                    lung_activity_gbq: act_lung
+                }
+            };
+        }
+
+        function clientCalculateMIRD(payload) {
+            const dose_constant = payload.exact_constant ? 49.67 : 50.0;
+            const target_mass_kg = (payload.target_volume_cc * 1.05) / 1000.0;
+            const lsf_fraction = payload.lung_shunt_pct / 100.0;
+            const calculated_act = (payload.desired_dose_gy * target_mass_kg) / (dose_constant * (1.0 - lsf_fraction));
+            const waste_fraction = (payload.residual_waste_pct || 0.0) / 100.0;
+            const vial_act = waste_fraction > 0 ? calculated_act / (1.0 - waste_fraction) : calculated_act;
+            const lung_dose = (calculated_act * lsf_fraction * dose_constant) / 1.0;
+
+            return {
+                calculated_activity_gbq: calculated_act,
+                calculated_activity_mbq: calculated_act * 1000.0,
+                vial_activity_gbq: vial_act,
+                estimated_lung_dose_gy: lung_dose
+            };
+        }
+
+        function clientCalculateBSA(payload) {
+            const height_m = payload.height_m;
+            const weight_kg = payload.weight_kg;
+            const bsa = 0.20247 * Math.pow(height_m, 0.725) * Math.pow(weight_kg, 0.425);
+            const ti = (payload.tumor_volume_cc / payload.target_volume_cc) * 100.0;
+            const unscaled_act = Math.max(0, bsa - 0.2 + (payload.tumor_volume_cc / payload.target_volume_cc));
+            const liver_vol = payload.total_liver_volume_cc || payload.target_volume_cc;
+            const scaling = Math.min(1.0, payload.target_volume_cc / liver_vol);
+            const calculated_act = unscaled_act * scaling;
+
+            let reduction_pct = 0.0;
+            let status_str = "Normal (< 10%)";
+            const lsf = payload.lung_shunt_pct;
+            if (lsf < 10.0) {
+                reduction_pct = 0.0;
+                status_str = "Normal (< 10%)";
+            } else if (lsf < 15.0) {
+                reduction_pct = 20.0;
+                status_str = "Moderate (10% - 15%)";
+            } else if (lsf <= 20.0) {
+                reduction_pct = 40.0;
+                status_str = "High (15% - 20%)";
+            } else {
+                reduction_pct = 100.0;
+                status_str = "Contraindicated (> 20%)";
+            }
+
+            const prescribed_act = calculated_act * (1.0 - reduction_pct / 100.0);
+            return {
+                bsa_m2: bsa,
+                tumor_involvement_pct: ti,
+                prescribed_activity_gbq: prescribed_act,
+                prescribed_activity_mbq: prescribed_act * 1000.0,
+                lsf_reduction_pct: reduction_pct,
+                lsf_status: status_str
+            };
+        }
+
+        function clientCalculateLungShunt(payload) {
+            let lsf_pct = 0.0;
+            if (payload.mode === 'planar') {
+                const g_lung = Math.sqrt(payload.lung_ant * payload.lung_post);
+                const g_liver = Math.sqrt(payload.liver_ant * payload.liver_post);
+                lsf_pct = (g_lung / (g_lung + g_liver)) * 100.0;
+            } else {
+                lsf_pct = (payload.total_lung_counts / (payload.total_lung_counts + payload.total_liver_counts)) * 100.0;
+            }
+
+            let reduction_pct = 0.0;
+            let status = "Normal (< 10%)";
+            if (lsf_pct < 10.0) {
+                reduction_pct = 0.0;
+                status = "Normal (< 10%) - Safe to Treat";
+            } else if (lsf_pct < 15.0) {
+                reduction_pct = 20.0;
+                status = "Moderate (10% - 15%) - 20% Reduction";
+            } else if (lsf_pct <= 20.0) {
+                reduction_pct = 40.0;
+                status = "High (15% - 20%) - 40% Reduction";
+            } else {
+                reduction_pct = 100.0;
+                status = "Contraindicated (> 20%) - High Risk";
+            }
+
+            return {
+                lung_shunt_pct: lsf_pct,
+                status: status,
+                recommended_activity_reduction_pct: reduction_pct
+            };
+        }
+
+        function clientCalculateVoxelLDM(payload) {
+            const matrix_size = 24;
+            const center = (matrix_size - 1) / 2.0;
+            const tumor_radius = 4.0;
+            const liver_radius = 9.0;
+            const tnr = payload.tnr || 3.5;
+
+            const tumor_counts = [];
+            const normal_counts = [];
+
+            let seed = 42;
+            function rnd() {
+                seed = (seed * 9301 + 49297) % 233280;
+                return seed / 233280.0;
+            }
+
+            for (let z = 0; z < matrix_size; z++) {
+                for (let y = 0; y < matrix_size; y++) {
+                    for (let x = 0; x < matrix_size; x++) {
+                        const dist = Math.sqrt((x - center)**2 + (y - center)**2 + (z - center)**2);
+                        if (dist <= tumor_radius) {
+                            const noise = (rnd() - 0.5) * 0.2;
+                            tumor_counts.push(Math.max(1.0, (100.0 * tnr) * (1.0 + noise)));
+                        } else if (dist <= liver_radius) {
+                            const noise = (rnd() - 0.5) * 0.3;
+                            normal_counts.push(Math.max(1.0, 100.0 * (1.0 + noise)));
+                        }
+                    }
+                }
+            }
+
+            const net_gbq = payload.injected_activity_gbq * (1.0 - (payload.residual_waste_pct || 0) / 100.0);
+            const liver_gbq = net_gbq * (1.0 - (payload.lung_shunt_pct || 0) / 100.0);
+
+            const total_counts = tumor_counts.reduce((a,b)=>a+b, 0) + normal_counts.reduce((a,b)=>a+b, 0);
+            const calib_factor = liver_gbq / Math.max(total_counts, 1.0);
+            const voxel_vol_cc = (3.0 * 3.0 * 3.0) / 1000.0;
+            const voxel_mass_g = voxel_vol_cc * 1.05;
+            const dose_multiplier = (calib_factor * 49670.0) / voxel_mass_g;
+
+            function analyzeRegion(counts) {
+                const doses = counts.map(c => Math.max(0, c * dose_multiplier)).sort((a,b)=>a-b);
+                const n = doses.length;
+                const mean = doses.reduce((a,b)=>a+b,0) / n;
+                const min = doses[0];
+                const max = doses[n-1];
+                const d50 = doses[Math.floor(n * 0.5)];
+                const d70 = doses[Math.floor(n * 0.3)];
+                const d90 = doses[Math.floor(n * 0.1)];
+                const v100 = (doses.filter(d => d >= 100.0).length / n) * 100.0;
+
+                const dvh_curve = [];
+                const max_axis = Math.max(250.0, max * 1.05);
+                const step = max_axis / 25.0;
+                for (let i = 0; i <= 25; i++) {
+                    const dose_th = i * step;
+                    const ge_cnt = doses.filter(d => d >= dose_th).length;
+                    dvh_curve.push({ dose: Math.round(dose_th), pct: Math.round((ge_cnt / n) * 1000) / 10 });
+                }
+
+                return {
+                    volume_cc: n * voxel_vol_cc,
+                    mean_dose_gy: mean,
+                    min_dose_gy: min,
+                    max_dose_gy: max,
+                    d50_gy: d50,
+                    d70_gy: d70,
+                    d90_gy: d90,
+                    v100_pct: v100,
+                    dvh_curve: dvh_curve
+                };
+            }
+
+            return {
+                regions: {
+                    "Tumor": analyzeRegion(tumor_counts),
+                    "Normal Liver": analyzeRegion(normal_counts)
+                }
+            };
+        }
+
+        function clientGenerateReportHTML() {
+            const today = new Date().toISOString().slice(0, 10);
+            return `
+            <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: #1e293b; max-width: 800px; margin: 0 auto; line-height: 1.5;">
+                <div style="border-bottom: 3px solid #0284c7; padding-bottom: 12px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: flex-end;">
+                    <div>
+                        <h1 style="font-size: 20px; font-weight: 800; color: #0f172a; margin: 0;">Y-90 Radioembolization (SIRT / TARE) Clinical Dosimetry Report</h1>
+                        <p style="font-size: 11px; color: #64748b; margin: 4px 0 0 0;">Open Y-90 Dosimetry Suite | Standardized Clinical Reporting</p>
+                    </div>
+                    <div style="text-align: right; font-size: 11px; color: #64748b;">
+                        <div><strong>Report Date:</strong> \${today}</div>
+                        <div><strong>Engine:</strong> Open Y-90 v1.0.0 (Client/Web)</div>
+                    </div>
+                </div>
+
+                <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px 16px; margin-bottom: 20px; font-size: 12px;">
+                    <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px;">
+                        <div><span style="color: #64748b;">Patient:</span> <strong>John Doe</strong></div>
+                        <div><span style="color: #64748b;">MRN:</span> <strong>MRN-109482</strong></div>
+                        <div><span style="color: #64748b;">Age/Sex:</span> <strong>64 / M</strong></div>
+                        <div><span style="color: #64748b;">Intent:</span> <strong>Curative / Ablative</strong></div>
+                    </div>
+                </div>
+
+                <div style="margin-bottom: 20px;">
+                    <h3 style="font-size: 13px; font-weight: 700; color: #0369a1; text-transform: uppercase; margin-bottom: 8px; border-bottom: 1px solid #e0f2fe; padding-bottom: 4px;">Dosimetry Planning Summary</h3>
+                    <table style="width: 100%; border-collapse: collapse; font-size: 12px; text-align: left;">
+                        <tr style="border-bottom: 1px solid #f1f5f9;"><td style="padding: 6px; color: #64748b;">Planning Model</td><td style="padding: 6px; font-weight: 600;">Partition Multi-Compartment Model</td></tr>
+                        <tr style="border-bottom: 1px solid #f1f5f9;"><td style="padding: 6px; color: #64748b;">Microsphere Type</td><td style="padding: 6px; font-weight: 600;">SIR-Spheres (Resin Microspheres)</td></tr>
+                        <tr style="border-bottom: 1px solid #f1f5f9;"><td style="padding: 6px; color: #64748b;">Administered Activity</td><td style="padding: 6px; font-weight: 600;">1.625 GBq (1,625 MBq)</td></tr>
+                        <tr style="border-bottom: 1px solid #f1f5f9;"><td style="padding: 6px; color: #64748b;">Lung Shunt Fraction</td><td style="padding: 6px; font-weight: 600;">5.0% (Safe, &lt; 10%)</td></tr>
+                        <tr style="border-bottom: 1px solid #f1f5f9;"><td style="padding: 6px; color: #64748b;">Tumor Absorbed Dose</td><td style="padding: 6px; font-weight: 600; color: #0284c7;">140.0 Gy</td></tr>
+                        <tr style="border-bottom: 1px solid #f1f5f9;"><td style="padding: 6px; color: #64748b;">Normal Liver Absorbed Dose</td><td style="padding: 6px; font-weight: 600; color: #16a34a;">31.7 Gy (&lt; 45 Gy Limit)</td></tr>
+                        <tr style="border-bottom: 1px solid #f1f5f9;"><td style="padding: 6px; color: #64748b;">Estimated Lung Absorbed Dose</td><td style="padding: 6px; font-weight: 600; color: #d97706;">4.0 Gy (&lt; 30 Gy Limit)</td></tr>
+                    </table>
+                </div>
+
+                <div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; padding: 12px; font-size: 11px; color: #166534; margin-bottom: 20px;">
+                    <strong>Safety Summary:</strong> Treatment complies with CIRSE and EANM radioembolization safety criteria. Normal liver parenchyma dose is safely restricted below 45 Gy, and lung absorbed dose (4.0 Gy) is well below the 30 Gy single-session limit.
+                </div>
+
+                <div style="background: #fffbeb; border: 1px solid #fef3c7; border-radius: 8px; padding: 10px; font-size: 10px; color: #92400e; margin-top: 24px;">
+                    <strong>Research & Educational Disclaimer:</strong> Generated by Open Y-90 Dosimetry Suite. For research and educational use only. Not certified as a medical device for primary diagnostic or therapeutic decisions. All treatment plans must be validated against approved clinical procedures and manufacturer monographs.
+                </div>
+            </div>
+            `;
+        }
+
         // 1. Calculate Partition Model
         async function calculatePartition() {
             const payload = {
@@ -746,48 +1032,38 @@
                 lung_dose_limit_gy: parseFloat(document.getElementById('pm-lung-limit').value)
             };
 
-            try {
-                const res = await fetch('/api/partition', {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify(payload)
-                });
-                const data = await res.json();
-                if (data.error) { alert(data.error); return; }
+            const data = await callApiOrFallback('/api/partition', payload, clientCalculatePartition);
 
-                // Update UI
-                document.getElementById('pm-res-activity-gbq').innerText = data.recommended_activity_gbq.toFixed(3);
-                document.getElementById('pm-res-activity-mbq').innerText = data.recommended_activity_mbq.toLocaleString() + ' MBq';
-                document.getElementById('pm-res-tumor-dose').innerText = data.recommended_doses.tumor_dose_gy.toFixed(1);
-                document.getElementById('pm-res-normal-dose').innerText = data.recommended_doses.normal_liver_dose_gy.toFixed(1);
-                document.getElementById('pm-res-lung-dose').innerText = data.recommended_doses.lung_dose_gy.toFixed(1);
+            // Update UI
+            document.getElementById('pm-res-activity-gbq').innerText = data.recommended_activity_gbq.toFixed(3);
+            document.getElementById('pm-res-activity-mbq').innerText = Math.round(data.recommended_activity_mbq).toLocaleString() + ' MBq';
+            document.getElementById('pm-res-tumor-dose').innerText = data.recommended_doses.tumor_dose_gy.toFixed(1);
+            document.getElementById('pm-res-normal-dose').innerText = data.recommended_doses.normal_liver_dose_gy.toFixed(1);
+            document.getElementById('pm-res-lung-dose').innerText = data.recommended_doses.lung_dose_gy.toFixed(1);
 
-                // Table
-                document.getElementById('pm-tab-tumor-vol').innerText = data.tumor_volume_cc.toFixed(1);
-                document.getElementById('pm-tab-tumor-mass').innerText = data.tumor_mass_kg.toFixed(3);
-                document.getElementById('pm-tab-tumor-act').innerText = data.recommended_doses.tumor_activity_gbq.toFixed(3);
-                document.getElementById('pm-tab-tumor-dose').innerText = data.recommended_doses.tumor_dose_gy.toFixed(1) + ' Gy';
+            // Table
+            document.getElementById('pm-tab-tumor-vol').innerText = data.tumor_volume_cc.toFixed(1);
+            document.getElementById('pm-tab-tumor-mass').innerText = data.tumor_mass_kg.toFixed(3);
+            document.getElementById('pm-tab-tumor-act').innerText = data.recommended_doses.tumor_activity_gbq.toFixed(3);
+            document.getElementById('pm-tab-tumor-dose').innerText = data.recommended_doses.tumor_dose_gy.toFixed(1) + ' Gy';
 
-                document.getElementById('pm-tab-normal-vol').innerText = data.normal_liver_volume_cc.toFixed(1);
-                document.getElementById('pm-tab-normal-mass').innerText = data.normal_liver_mass_kg.toFixed(3);
-                document.getElementById('pm-tab-normal-act').innerText = data.recommended_doses.normal_liver_activity_gbq.toFixed(3);
-                document.getElementById('pm-tab-normal-dose').innerText = data.recommended_doses.normal_liver_dose_gy.toFixed(1) + ' Gy';
+            document.getElementById('pm-tab-normal-vol').innerText = data.normal_liver_volume_cc.toFixed(1);
+            document.getElementById('pm-tab-normal-mass').innerText = data.normal_liver_mass_kg.toFixed(3);
+            document.getElementById('pm-tab-normal-act').innerText = data.recommended_doses.normal_liver_activity_gbq.toFixed(3);
+            document.getElementById('pm-tab-normal-dose').innerText = data.recommended_doses.normal_liver_dose_gy.toFixed(1) + ' Gy';
 
-                document.getElementById('pm-tab-lung-act').innerText = data.recommended_doses.lung_activity_gbq.toFixed(3);
-                document.getElementById('pm-tab-lung-dose').innerText = data.recommended_doses.lung_dose_gy.toFixed(1) + ' Gy';
+            document.getElementById('pm-tab-lung-act').innerText = data.recommended_doses.lung_activity_gbq.toFixed(3);
+            document.getElementById('pm-tab-lung-dose').innerText = data.recommended_doses.lung_dose_gy.toFixed(1) + ' Gy';
 
-                // Render or update Chart
-                renderPartitionChart(
-                    data.recommended_doses.tumor_dose_gy,
-                    data.recommended_doses.normal_liver_dose_gy,
-                    data.recommended_doses.lung_dose_gy,
-                    payload.desired_tumor_dose_gy,
-                    payload.normal_liver_dose_limit_gy,
-                    payload.lung_dose_limit_gy
-                );
-            } catch(e) {
-                console.error(e);
-            }
+            // Render Chart
+            renderPartitionChart(
+                data.recommended_doses.tumor_dose_gy,
+                data.recommended_doses.normal_liver_dose_gy,
+                data.recommended_doses.lung_dose_gy,
+                payload.desired_tumor_dose_gy,
+                payload.normal_liver_dose_limit_gy,
+                payload.lung_dose_limit_gy
+            );
         }
 
         function renderPartitionChart(tumorDose, normalDose, lungDose, desiredTumor, limitNormal, limitLung) {
@@ -833,18 +1109,11 @@
                 residual_waste_pct: parseFloat(document.getElementById('mird-waste').value),
                 exact_constant: document.getElementById('mird-constant').value === 'exact'
             };
-            try {
-                const res = await fetch('/api/mird', {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify(payload)
-                });
-                const data = await res.json();
-                document.getElementById('mird-res-act-gbq').innerText = data.calculated_activity_gbq.toFixed(3);
-                document.getElementById('mird-res-act-mbq').innerText = data.calculated_activity_mbq.toLocaleString() + ' MBq';
-                document.getElementById('mird-res-vial-gbq').innerText = data.vial_activity_gbq.toFixed(3) + ' GBq';
-                document.getElementById('mird-res-lung-dose').innerText = data.estimated_lung_dose_gy.toFixed(2) + ' Gy';
-            } catch(e) { console.error(e); }
+            const data = await callApiOrFallback('/api/mird', payload, clientCalculateMIRD);
+            document.getElementById('mird-res-act-gbq').innerText = data.calculated_activity_gbq.toFixed(3);
+            document.getElementById('mird-res-act-mbq').innerText = Math.round(data.calculated_activity_mbq).toLocaleString() + ' MBq';
+            document.getElementById('mird-res-vial-gbq').innerText = data.vial_activity_gbq.toFixed(3) + ' GBq';
+            document.getElementById('mird-res-lung-dose').innerText = data.estimated_lung_dose_gy.toFixed(2) + ' Gy';
         }
 
         // 3. Calculate BSA Model
@@ -857,31 +1126,24 @@
                 total_liver_volume_cc: parseFloat(document.getElementById('bsa-liver-vol').value),
                 lung_shunt_pct: parseFloat(document.getElementById('bsa-lsf').value)
             };
-            try {
-                const res = await fetch('/api/bsa', {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify(payload)
-                });
-                const data = await res.json();
-                document.getElementById('bsa-res-act-gbq').innerText = data.prescribed_activity_gbq.toFixed(3);
-                document.getElementById('bsa-res-act-mbq').innerText = data.prescribed_activity_mbq.toLocaleString() + ' MBq';
-                document.getElementById('bsa-res-bsa').innerText = data.bsa_m2.toFixed(3) + ' m²';
-                document.getElementById('bsa-res-ti').innerText = data.tumor_involvement_pct.toFixed(1) + '%';
-                document.getElementById('bsa-res-reduction').innerText = data.lsf_reduction_pct + '% (' + data.lsf_status + ')';
+            const data = await callApiOrFallback('/api/bsa', payload, clientCalculateBSA);
+            document.getElementById('bsa-res-act-gbq').innerText = data.prescribed_activity_gbq.toFixed(3);
+            document.getElementById('bsa-res-act-mbq').innerText = Math.round(data.prescribed_activity_mbq).toLocaleString() + ' MBq';
+            document.getElementById('bsa-res-bsa').innerText = data.bsa_m2.toFixed(3) + ' m²';
+            document.getElementById('bsa-res-ti').innerText = data.tumor_involvement_pct.toFixed(1) + '%';
+            document.getElementById('bsa-res-reduction').innerText = data.lsf_reduction_pct + '% (' + data.lsf_status + ')';
 
-                const alertBox = document.getElementById('bsa-alert-box');
-                if (data.lsf_reduction_pct === 0) {
-                    alertBox.className = "p-4 rounded-xl border border-emerald-200 bg-emerald-50 text-emerald-800 text-xs";
-                    alertBox.innerHTML = "<strong>Lung Shunt Status:</strong> Normal (&lt; 10%). Standard prescribed activity.";
-                } else if (data.lsf_reduction_pct > 40) {
-                    alertBox.className = "p-4 rounded-xl border border-rose-200 bg-rose-50 text-rose-800 text-xs";
-                    alertBox.innerHTML = "<strong>CRITICAL ALERT:</strong> Shunt &gt; 20%. Administration is contraindicated.";
-                } else {
-                    alertBox.className = "p-4 rounded-xl border border-amber-200 bg-amber-50 text-amber-800 text-xs";
-                    alertBox.innerHTML = `<strong>Dose Reduction Applied:</strong> ${data.lsf_reduction_pct}% reduction due to elevated shunt fraction.`;
-                }
-            } catch(e) { console.error(e); }
+            const alertBox = document.getElementById('bsa-alert-box');
+            if (data.lsf_reduction_pct === 0) {
+                alertBox.className = "p-4 rounded-xl border border-emerald-200 bg-emerald-50 text-emerald-800 text-xs";
+                alertBox.innerHTML = "<strong>Lung Shunt Status:</strong> Normal (&lt; 10%). Standard prescribed activity.";
+            } else if (data.lsf_reduction_pct > 40) {
+                alertBox.className = "p-4 rounded-xl border border-rose-200 bg-rose-50 text-rose-800 text-xs";
+                alertBox.innerHTML = "<strong>CRITICAL ALERT:</strong> Shunt &gt; 20%. Administration is contraindicated.";
+            } else {
+                alertBox.className = "p-4 rounded-xl border border-amber-200 bg-amber-50 text-amber-800 text-xs";
+                alertBox.innerHTML = `<strong>Dose Reduction Applied:</strong> \${data.lsf_reduction_pct}% reduction due to elevated shunt fraction.`;
+            }
         }
 
         // 4. Calculate Lung Shunt
@@ -898,17 +1160,10 @@
                 payload.total_liver_counts = parseFloat(document.getElementById('shunt-spect-liver').value);
             }
 
-            try {
-                const res = await fetch('/api/lung_shunt', {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify(payload)
-                });
-                const data = await res.json();
-                document.getElementById('shunt-res-lsf').innerText = data.lung_shunt_pct.toFixed(2);
-                document.getElementById('shunt-res-tier').innerText = data.status;
-                document.getElementById('shunt-res-adjustment').innerText = data.recommended_activity_reduction_pct + '% reduction';
-            } catch(e) { console.error(e); }
+            const data = await callApiOrFallback('/api/lung_shunt', payload, clientCalculateLungShunt);
+            document.getElementById('shunt-res-lsf').innerText = data.lung_shunt_pct.toFixed(2);
+            document.getElementById('shunt-res-tier').innerText = data.status;
+            document.getElementById('shunt-res-adjustment').innerText = data.recommended_activity_reduction_pct + '% reduction';
         }
 
         // 5. Calculate Voxel LDM & DVH
@@ -920,34 +1175,27 @@
                 tnr: parseFloat(document.getElementById('voxel-tnr').value),
                 matrix_size: 24
             };
-            try {
-                const res = await fetch('/api/voxel_ldm', {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify(payload)
-                });
-                const data = await res.json();
+            const data = await callApiOrFallback('/api/voxel_ldm', payload, clientCalculateVoxelLDM);
 
-                // Render DVH
-                renderDVHChart(data.regions);
+            // Render DVH
+            renderDVHChart(data.regions);
 
-                // Table
-                const tbody = document.getElementById('voxel-stats-tbody');
-                tbody.innerHTML = '';
-                for (let rName in data.regions) {
-                    const s = data.regions[rName];
-                    const row = `<tr>
-                        <td class="p-2.5 font-bold ${rName === 'Tumor' ? 'text-sky-700' : 'text-emerald-700'}">${rName}</td>
-                        <td class="p-2.5 font-semibold">${s.mean_dose_gy.toFixed(1)} Gy</td>
-                        <td class="p-2.5">${s.max_dose_gy.toFixed(1)} Gy</td>
-                        <td class="p-2.5">${s.d50_gy.toFixed(1)} Gy</td>
-                        <td class="p-2.5">${s.d70_gy.toFixed(1)} Gy</td>
-                        <td class="p-2.5">${s.d90_gy.toFixed(1)} Gy</td>
-                        <td class="p-2.5 font-semibold">${s.v100_pct.toFixed(1)}%</td>
-                    </tr>`;
-                    tbody.innerHTML += row;
-                }
-            } catch(e) { console.error(e); }
+            // Table
+            const tbody = document.getElementById('voxel-stats-tbody');
+            tbody.innerHTML = '';
+            for (let rName in data.regions) {
+                const s = data.regions[rName];
+                const row = `<tr>
+                    <td class="p-2.5 font-bold \${rName === 'Tumor' ? 'text-sky-700' : 'text-emerald-700'}">\${rName}</td>
+                    <td class="p-2.5 font-semibold">\${s.mean_dose_gy.toFixed(1)} Gy</td>
+                    <td class="p-2.5">\${s.max_dose_gy.toFixed(1)} Gy</td>
+                    <td class="p-2.5">\${s.d50_gy.toFixed(1)} Gy</td>
+                    <td class="p-2.5">\${s.d70_gy.toFixed(1)} Gy</td>
+                    <td class="p-2.5">\${s.d90_gy.toFixed(1)} Gy</td>
+                    <td class="p-2.5 font-semibold">\${s.v100_pct.toFixed(1)}%</td>
+                </tr>`;
+                tbody.innerHTML += row;
+            }
         }
 
         function renderDVHChart(regions) {
@@ -987,7 +1235,7 @@
                     maintainAspectRatio: false,
                     scales: {
                         x: { title: { display: true, text: 'Absorbed Dose (Gy)' } },
-                        y: { min: 0, max: 100, title: { display: true, text: 'Volume Receiving &ge; Dose (%)' } }
+                        y: { min: 0, max: 100, title: { display: true, text: 'Volume Receiving >= Dose (%)' } }
                     }
                 }
             });
@@ -1012,16 +1260,9 @@
                 lung_mean_dose_gy: 4.0,
                 safety_summary: "Treatment complies fully with CIRSE and EANM radioembolization safety criteria. Normal liver parenchyma dose is safely restricted below 45 Gy, and lung absorbed dose (4.0 Gy) is well below the 30 Gy threshold."
             };
-            try {
-                const res = await fetch('/api/report', {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify(payload)
-                });
-                const data = await res.json();
-                lastReportHtml = data.html;
-                document.getElementById('report-container').innerHTML = data.html;
-            } catch(e) { console.error(e); }
+            const data = await callApiOrFallback('/api/report', payload, () => ({ html: clientGenerateReportHTML() }));
+            lastReportHtml = data.html;
+            document.getElementById('report-container').innerHTML = data.html;
         }
 
         function downloadReportHTML() {

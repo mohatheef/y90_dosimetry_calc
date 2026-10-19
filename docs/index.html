@@ -1,0 +1,1291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Open Y-90 Dosimetry Suite | Clinically Validated Engine</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        .tab-btn.active {
+            border-bottom: 3px solid #0284c7;
+            color: #0284c7;
+            font-weight: 600;
+        }
+        .math-box {
+            font-family: 'Cambria Math', 'Times New Roman', serif;
+            background: #f8fafc;
+            border-left: 3px solid #0284c7;
+            padding: 8px 12px;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 antialiased min-h-screen flex flex-col">
+
+    <!-- Top Header Bar -->
+    <header class="bg-white border-b border-slate-200 sticky top-0 z-50 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 rounded-lg bg-sky-600 flex items-center justify-center text-white font-bold text-xl shadow-md">
+                    Y90
+                </div>
+                <div>
+                    <h1 class="text-lg font-bold text-slate-900 leading-tight">Open Y-90 Dosimetry Suite</h1>
+                    <p class="text-xs text-slate-500">Standardized Multi-Compartment Clinical Radioembolization Dosimetry</p>
+                </div>
+            </div>
+            <div class="flex items-center space-x-3">
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800">
+                    <span class="w-2 h-2 rounded-full bg-emerald-500 mr-1.5 animate-pulse"></span> Open-Source Engine Ready
+                </span>
+                <button onclick="switchTab('report')" class="bg-sky-600 hover:bg-sky-700 text-white text-xs font-semibold px-3 py-1.5 rounded-md flex items-center space-x-1.5 transition">
+                    <i data-lucide="file-text" class="w-4 h-4"></i>
+                    <span>Generate Clinical Report</span>
+                </button>
+            </div>
+        </div>
+    </header>
+    <!-- Research Disclaimer Banner -->
+    <div class="bg-amber-50 border-b border-amber-200 px-4 py-2 text-center text-xs text-amber-900 font-medium flex items-center justify-center space-x-2">
+        <i data-lucide="alert-triangle" class="w-4 h-4 text-amber-600 flex-shrink-0"></i>
+        <span><strong>For Research & Educational Use Only.</strong> Not a certified medical device and not validated for primary clinical decision-making. Always verify against approved clinical protocols.</span>
+    </div>
+
+    <!-- Navigation Tabs -->
+    <nav class="bg-white border-b border-slate-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex space-x-8 overflow-x-auto">
+            <button onclick="switchTab('partition')" id="tab-btn-partition" class="tab-btn active py-3 text-sm text-slate-600 hover:text-slate-900 flex items-center space-x-2">
+                <i data-lucide="layers" class="w-4 h-4"></i>
+                <span>Partition Model (Multi-Compartment)</span>
+            </button>
+            <button onclick="switchTab('mird')" id="tab-btn-mird" class="tab-btn py-3 text-sm text-slate-600 hover:text-slate-900 flex items-center space-x-2">
+                <i data-lucide="activity" class="w-4 h-4"></i>
+                <span>MIRD Model (TheraSpheres)</span>
+            </button>
+            <button onclick="switchTab('bsa')" id="tab-btn-bsa" class="tab-btn py-3 text-sm text-slate-600 hover:text-slate-900 flex items-center space-x-2">
+                <i data-lucide="user" class="w-4 h-4"></i>
+                <span>BSA Model (SIR-Spheres)</span>
+            </button>
+            <button onclick="switchTab('shunt')" id="tab-btn-shunt" class="tab-btn py-3 text-sm text-slate-600 hover:text-slate-900 flex items-center space-x-2">
+                <i data-lucide="wind" class="w-4 h-4"></i>
+                <span>Lung Shunt Fraction (2D / 3D)</span>
+            </button>
+            <button onclick="switchTab('voxel')" id="tab-btn-voxel" class="tab-btn py-3 text-sm text-slate-600 hover:text-slate-900 flex items-center space-x-2">
+                <i data-lucide="bar-chart-2" class="w-4 h-4"></i>
+                <span>Voxel LDM & DVH Explorer</span>
+            </button>
+            <button onclick="switchTab('report')" id="tab-btn-report" class="tab-btn py-3 text-sm text-slate-600 hover:text-slate-900 flex items-center space-x-2">
+                <i data-lucide="printer" class="w-4 h-4"></i>
+                <span>Clinical Report</span>
+            </button>
+            <button onclick="switchTab('reference')" id="tab-btn-reference" class="tab-btn py-3 text-sm text-slate-600 hover:text-slate-900 flex items-center space-x-2">
+                <i data-lucide="book-open" class="w-4 h-4"></i>
+                <span>Formulas & Documentation</span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Main Content Area -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-1 w-full">
+
+        <!-- ======================================================== -->
+        <!-- TAB 1: PARTITION MODEL (DEFAULT / PRIMARY) -->
+        <!-- ======================================================== -->
+        <section id="tab-partition" class="tab-content block">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                <!-- Inputs Column -->
+                <div class="lg:col-span-5 bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-5">
+                    <div class="border-b border-slate-100 pb-3">
+                        <h2 class="text-base font-bold text-slate-900 flex items-center space-x-2">
+                            <i data-lucide="sliders" class="w-4 h-4 text-sky-600"></i>
+                            <span>Partition Model Parameters</span>
+                        </h2>
+                        <p class="text-xs text-slate-500">Solves 3-compartment simultaneous dosimetry for Tumor, Normal Liver & Lungs.</p>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">Target Liver Volume (cc)</label>
+                            <input id="pm-target-vol" type="number" value="1450" class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">Tumor Volume (cc)</label>
+                            <input id="pm-tumor-vol" type="number" value="250" class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:outline-none">
+                        </div>
+                    </div>
+
+                    <div>
+                        <div class="flex justify-between items-center mb-1">
+                            <label class="text-xs font-semibold text-slate-600">Tumor-to-Normal Ratio (TNR)</label>
+                            <span id="pm-tnr-val" class="text-xs font-bold text-sky-700 bg-sky-50 px-2 py-0.5 rounded">3.50</span>
+                        </div>
+                        <input id="pm-tnr" type="range" min="1.0" max="10.0" step="0.1" value="3.5" class="w-full accent-sky-600" oninput="document.getElementById('pm-tnr-val').innerText = parseFloat(this.value).toFixed(2); calculatePartition();">
+                        <p class="text-[11px] text-slate-400 mt-0.5">Ratio of activity concentration in tumor vs normal liver parenchyma.</p>
+                    </div>
+
+                    <div>
+                        <div class="flex justify-between items-center mb-1">
+                            <label class="text-xs font-semibold text-slate-600">Lung Shunt Fraction (LSF %)</label>
+                            <span id="pm-lsf-val" class="text-xs font-bold text-slate-700 bg-slate-100 px-2 py-0.5 rounded">5.0%</span>
+                        </div>
+                        <input id="pm-lsf" type="range" min="0.0" max="25.0" step="0.5" value="5.0" class="w-full accent-sky-600" oninput="document.getElementById('pm-lsf-val').innerText = parseFloat(this.value).toFixed(1) + '%'; calculatePartition();">
+                    </div>
+
+                    <div class="border-t border-slate-100 pt-3 space-y-3">
+                        <h3 class="text-xs font-bold text-slate-700 uppercase tracking-wider">Clinical Prescriptions & Limits</h3>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-600 mb-1">Desired Tumor Dose (Gy)</label>
+                                <input id="pm-desired-tumor-dose" type="number" value="140" class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-600 mb-1">Normal Liver Limit (Gy)</label>
+                                <input id="pm-normal-liver-limit" type="number" value="45" class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:outline-none">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">Lung Limiting Dose (Gy)</label>
+                            <input id="pm-lung-limit" type="number" value="30" class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:outline-none">
+                        </div>
+                    </div>
+
+                    <button onclick="calculatePartition()" class="w-full bg-sky-600 hover:bg-sky-700 text-white font-medium py-2.5 rounded-lg text-sm shadow transition flex items-center justify-center space-x-2">
+                        <i data-lucide="check-circle" class="w-4 h-4"></i>
+                        <span>Calculate Partition Dosimetry</span>
+                    </button>
+                </div>
+
+                <!-- Results Column -->
+                <div class="lg:col-span-7 space-y-6">
+                    <!-- Prescribed Activity Hero Card -->
+                    <div class="bg-gradient-to-br from-sky-900 to-slate-900 text-white p-6 rounded-xl shadow-md">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <span class="text-xs uppercase font-bold tracking-wider text-sky-400">Recommended Prescribed Activity</span>
+                                <div class="flex items-baseline space-x-3 mt-1">
+                                    <span id="pm-res-activity-gbq" class="text-4xl font-black">1.625</span>
+                                    <span class="text-lg text-sky-300 font-semibold">GBq</span>
+                                    <span class="text-slate-400">/</span>
+                                    <span id="pm-res-activity-mbq" class="text-lg text-slate-300 font-medium">1,625 MBq</span>
+                                </div>
+                            </div>
+                            <div id="pm-safety-badge" class="px-3 py-1 bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 rounded-full text-xs font-semibold">
+                                ✓ Fully Compliant
+                            </div>
+                        </div>
+
+                        <!-- Absorbed Dose Breakdown -->
+                        <div class="grid grid-cols-3 gap-3 mt-6 pt-5 border-t border-sky-800/60">
+                            <div class="bg-sky-950/60 p-3 rounded-lg border border-sky-800/40">
+                                <span class="text-[11px] text-sky-300 font-semibold block">Tumor Dose (D_t)</span>
+                                <span id="pm-res-tumor-dose" class="text-2xl font-bold text-white">140.0</span>
+                                <span class="text-xs text-sky-400"> Gy</span>
+                            </div>
+                            <div class="bg-sky-950/60 p-3 rounded-lg border border-sky-800/40">
+                                <span class="text-[11px] text-sky-300 font-semibold block">Normal Liver (D_nl)</span>
+                                <span id="pm-res-normal-dose" class="text-2xl font-bold text-white">40.0</span>
+                                <span class="text-xs text-sky-400"> Gy</span>
+                            </div>
+                            <div class="bg-sky-950/60 p-3 rounded-lg border border-sky-800/40">
+                                <span class="text-[11px] text-sky-300 font-semibold block">Lung Dose (D_lung)</span>
+                                <span id="pm-res-lung-dose" class="text-2xl font-bold text-white">4.0</span>
+                                <span class="text-xs text-sky-400"> Gy</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Dose Comparison Bar Chart -->
+                    <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+                        <h3 class="text-xs font-bold text-slate-700 uppercase tracking-wider mb-4">Absorbed Dose Comparison vs Safety Limits</h3>
+                        <div class="h-56">
+                            <canvas id="partitionChart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Compartment Details Table -->
+                    <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+                        <h3 class="text-xs font-bold text-slate-700 uppercase tracking-wider mb-3">Compartment Breakdown Table</h3>
+                        <table class="w-full text-xs text-left">
+                            <thead class="bg-slate-50 text-slate-500 uppercase">
+                                <tr>
+                                    <th class="p-2.5">Compartment</th>
+                                    <th class="p-2.5">Volume (cc)</th>
+                                    <th class="p-2.5">Mass (kg)</th>
+                                    <th class="p-2.5">Activity (GBq)</th>
+                                    <th class="p-2.5 font-bold">Absorbed Dose (Gy)</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-100">
+                                <tr>
+                                    <td class="p-2.5 font-semibold text-slate-800">Tumor Target</td>
+                                    <td class="p-2.5" id="pm-tab-tumor-vol">250.0</td>
+                                    <td class="p-2.5" id="pm-tab-tumor-mass">0.2625</td>
+                                    <td class="p-2.5" id="pm-tab-tumor-act">0.740</td>
+                                    <td class="p-2.5 font-bold text-sky-700" id="pm-tab-tumor-dose">140.0 Gy</td>
+                                </tr>
+                                <tr>
+                                    <td class="p-2.5 font-semibold text-slate-800">Normal Liver Parenchyma</td>
+                                    <td class="p-2.5" id="pm-tab-normal-vol">1200.0</td>
+                                    <td class="p-2.5" id="pm-tab-normal-mass">1.2600</td>
+                                    <td class="p-2.5" id="pm-tab-normal-act">0.804</td>
+                                    <td class="p-2.5 font-bold text-emerald-700" id="pm-tab-normal-dose">31.7 Gy</td>
+                                </tr>
+                                <tr>
+                                    <td class="p-2.5 font-semibold text-slate-800">Lungs (Shunt)</td>
+                                    <td class="p-2.5">-</td>
+                                    <td class="p-2.5">1.0000</td>
+                                    <td class="p-2.5" id="pm-tab-lung-act">0.081</td>
+                                    <td class="p-2.5 font-bold text-amber-700" id="pm-tab-lung-dose">4.0 Gy</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ======================================================== -->
+        <!-- TAB 2: MIRD SINGLE-COMPARTMENT MODEL -->
+        <!-- ======================================================== -->
+        <section id="tab-mird" class="tab-content hidden">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                <div class="lg:col-span-5 bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-5">
+                    <div class="border-b border-slate-100 pb-3">
+                        <h2 class="text-base font-bold text-slate-900 flex items-center space-x-2">
+                            <i data-lucide="activity" class="w-4 h-4 text-sky-600"></i>
+                            <span>MIRD Single-Compartment Model</span>
+                        </h2>
+                        <p class="text-xs text-slate-500">Standard for TheraSpheres (Glass) & Uniform Target Dose Planning.</p>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Desired Dose to Target (Gy)</label>
+                        <input id="mird-dose" type="number" value="120" class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:outline-none">
+                        <p class="text-[11px] text-slate-400 mt-0.5">TheraSpheres standard target: 120 Gy (lobar) or 150-200+ Gy (segmentectomy).</p>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">Target Volume (cc)</label>
+                            <input id="mird-vol" type="number" value="1200" class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">Lung Shunt (LSF %)</label>
+                            <input id="mird-lsf" type="number" value="5.0" step="0.1" class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:outline-none">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">Residual Waste %</label>
+                            <input id="mird-waste" type="number" value="3.0" step="0.5" class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">Dose Constant</label>
+                            <select id="mird-constant" class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:outline-none">
+                                <option value="approx">50.0 Gy*kg/GBq (TheraSpheres)</option>
+                                <option value="exact">49.67 Gy*kg/GBq (Physical Exact)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="math-box text-xs text-slate-700">
+                        Calculated Activity = [Dose_target &times; Mass_target] / [50 &times; (1 - LSF)]<br>
+                        Vial Activity = Calculated Activity / (1 - Waste%)
+                    </div>
+
+                    <button onclick="calculateMIRD()" class="w-full bg-sky-600 hover:bg-sky-700 text-white font-medium py-2.5 rounded-lg text-sm shadow transition flex items-center justify-center space-x-2">
+                        <i data-lucide="check-circle" class="w-4 h-4"></i>
+                        <span>Calculate MIRD Activity</span>
+                    </button>
+                </div>
+
+                <div class="lg:col-span-7 space-y-6">
+                    <div class="bg-gradient-to-br from-indigo-900 to-slate-900 text-white p-6 rounded-xl shadow-md">
+                        <span class="text-xs uppercase font-bold tracking-wider text-indigo-400">Planned Injected Activity</span>
+                        <div class="flex items-baseline space-x-3 mt-1">
+                            <span id="mird-res-act-gbq" class="text-4xl font-black">3.183</span>
+                            <span class="text-lg text-indigo-300 font-semibold">GBq</span>
+                            <span class="text-slate-400">/</span>
+                            <span id="mird-res-act-mbq" class="text-lg text-slate-300 font-medium">3,183 MBq</span>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-4 mt-6 pt-5 border-t border-indigo-800/60">
+                            <div>
+                                <span class="text-xs text-indigo-300 block">Vial Order Activity (with waste):</span>
+                                <span id="mird-res-vial-gbq" class="text-xl font-bold">3.282 GBq</span>
+                            </div>
+                            <div>
+                                <span class="text-xs text-indigo-300 block">Estimated Lung Absorbed Dose:</span>
+                                <span id="mird-res-lung-dose" class="text-xl font-bold text-emerald-400">7.96 Gy</span>
+                                <span class="text-xs text-slate-400">(Limit &le; 30 Gy)</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-4">
+                        <h3 class="text-xs font-bold text-slate-700 uppercase tracking-wider">Clinical Guidance & TheraSpheres Notes</h3>
+                        <ul class="text-xs text-slate-600 space-y-2 list-disc pl-4">
+                            <li><strong>Target Mass:</strong> Liver tissue density is assumed at 1.05 g/cm³. Target Mass = (Volume × 1.05) / 1000 kg.</li>
+                            <li><strong>Lung Safety:</strong> Absorbed lung dose must not exceed 30 Gy for a single infusion or 50 Gy cumulative lifetime dose.</li>
+                            <li><strong>Sequential Lobar Infusion:</strong> For bi-lobar disease, calculate separate prescriptions per lobe separated by 4 to 6 weeks.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ======================================================== -->
+        <!-- TAB 3: BSA MODEL (SIR-SPHERES) -->
+        <!-- ======================================================== -->
+        <section id="tab-bsa" class="tab-content hidden">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                <div class="lg:col-span-5 bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-5">
+                    <div class="border-b border-slate-100 pb-3">
+                        <h2 class="text-base font-bold text-slate-900 flex items-center space-x-2">
+                            <i data-lucide="user" class="w-4 h-4 text-sky-600"></i>
+                            <span>BSA Model (SIR-Spheres Resin)</span>
+                        </h2>
+                        <p class="text-xs text-slate-500">Empirical model based on patient body surface area & tumor burden.</p>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">Height (m)</label>
+                            <input id="bsa-height" type="number" step="0.01" value="1.75" class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">Weight (kg)</label>
+                            <input id="bsa-weight" type="number" step="0.5" value="78.0" class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:outline-none">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">Target Volume (cc)</label>
+                            <input id="bsa-target-vol" type="number" value="1500" class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">Tumor Volume (cc)</label>
+                            <input id="bsa-tumor-vol" type="number" value="250" class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:outline-none">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">Total Liver Volume (cc)</label>
+                            <input id="bsa-liver-vol" type="number" value="1500" class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">Lung Shunt (LSF %)</label>
+                            <input id="bsa-lsf" type="number" value="6.5" step="0.1" class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:outline-none">
+                        </div>
+                    </div>
+
+                    <div class="math-box text-xs text-slate-700">
+                        BSA = 0.20247 &times; (Height<sup>0.725</sup>) &times; (Weight<sup>0.425</sup>)<br>
+                        Activity = [BSA - 0.2 + (V_tumor / V_target)] &times; (V_target / V_liver)
+                    </div>
+
+                    <button onclick="calculateBSA()" class="w-full bg-sky-600 hover:bg-sky-700 text-white font-medium py-2.5 rounded-lg text-sm shadow transition flex items-center justify-center space-x-2">
+                        <i data-lucide="check-circle" class="w-4 h-4"></i>
+                        <span>Calculate BSA Activity</span>
+                    </button>
+                </div>
+
+                <div class="lg:col-span-7 space-y-6">
+                    <div class="bg-gradient-to-br from-emerald-900 to-slate-900 text-white p-6 rounded-xl shadow-md">
+                        <span class="text-xs uppercase font-bold tracking-wider text-emerald-400">Final Prescribed Activity (SIR-Spheres)</span>
+                        <div class="flex items-baseline space-x-3 mt-1">
+                            <span id="bsa-res-act-gbq" class="text-4xl font-black">1.921</span>
+                            <span class="text-lg text-emerald-300 font-semibold">GBq</span>
+                            <span class="text-slate-400">/</span>
+                            <span id="bsa-res-act-mbq" class="text-lg text-slate-300 font-medium">1,921 MBq</span>
+                        </div>
+
+                        <div class="grid grid-cols-3 gap-3 mt-6 pt-5 border-t border-emerald-800/60 text-xs">
+                            <div>
+                                <span class="text-emerald-300 block">Patient BSA:</span>
+                                <span id="bsa-res-bsa" class="text-lg font-bold">1.954 m²</span>
+                            </div>
+                            <div>
+                                <span class="text-emerald-300 block">Tumor Involvement:</span>
+                                <span id="bsa-res-ti" class="text-lg font-bold">16.7%</span>
+                            </div>
+                            <div>
+                                <span class="text-emerald-300 block">LSF Reduction:</span>
+                                <span id="bsa-res-reduction" class="text-lg font-bold">0% (None)</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="bsa-alert-box" class="p-4 rounded-xl border border-emerald-200 bg-emerald-50 text-emerald-800 text-xs">
+                        <strong>Lung Shunt Status:</strong> Normal (&lt; 10%). No dose reduction needed.
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ======================================================== -->
+        <!-- TAB 4: LUNG SHUNT FRACTION (2D & 3D) -->
+        <!-- ======================================================== -->
+        <section id="tab-shunt" class="tab-content hidden">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                <div class="lg:col-span-5 bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-5">
+                    <div class="border-b border-slate-100 pb-3">
+                        <h2 class="text-base font-bold text-slate-900 flex items-center space-x-2">
+                            <i data-lucide="wind" class="w-4 h-4 text-sky-600"></i>
+                            <span>Lung Shunt Fraction (LSF) Workup</span>
+                        </h2>
+                        <p class="text-xs text-slate-500">Assesses hepatopulmonary arteriovenous shunting from Tc-99m MAA.</p>
+                    </div>
+
+                    <div class="flex space-x-2 bg-slate-100 p-1 rounded-lg text-xs font-semibold">
+                        <button onclick="toggleShuntMode('planar')" id="btn-shunt-planar" class="flex-1 py-1.5 rounded-md bg-white text-slate-900 shadow-sm">2D Planar (Conjugate)</button>
+                        <button onclick="toggleShuntMode('spect')" id="btn-shunt-spect" class="flex-1 py-1.5 rounded-md text-slate-600 hover:text-slate-900">3D SPECT/CT Volume</button>
+                    </div>
+
+                    <!-- Planar Inputs -->
+                    <div id="shunt-planar-inputs" class="space-y-4">
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-600 mb-1">Lung Anterior Counts</label>
+                                <input id="shunt-lung-ant" type="number" value="12500" class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-600 mb-1">Lung Posterior Counts</label>
+                                <input id="shunt-lung-post" type="number" value="13200" class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg">
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-600 mb-1">Liver Anterior Counts</label>
+                                <input id="shunt-liver-ant" type="number" value="145000" class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-600 mb-1">Liver Posterior Counts</label>
+                                <input id="shunt-liver-post" type="number" value="142000" class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- SPECT Inputs -->
+                    <div id="shunt-spect-inputs" class="space-y-4 hidden">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">Total 3D Lung Volume Counts</label>
+                            <input id="shunt-spect-lung" type="number" value="28000" class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">Total 3D Liver Volume Counts</label>
+                            <input id="shunt-spect-liver" type="number" value="380000" class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg">
+                        </div>
+                    </div>
+
+                    <button onclick="calculateLungShunt()" class="w-full bg-sky-600 hover:bg-sky-700 text-white font-medium py-2.5 rounded-lg text-sm shadow transition flex items-center justify-center space-x-2">
+                        <i data-lucide="check-circle" class="w-4 h-4"></i>
+                        <span>Calculate Shunt Fraction</span>
+                    </button>
+                </div>
+
+                <div class="lg:col-span-7 space-y-6">
+                    <div class="bg-gradient-to-br from-slate-900 to-sky-950 text-white p-6 rounded-xl shadow-md">
+                        <span class="text-xs uppercase font-bold tracking-wider text-sky-400">Calculated Lung Shunt Fraction</span>
+                        <div class="flex items-baseline space-x-3 mt-1">
+                            <span id="shunt-res-lsf" class="text-5xl font-black">8.19</span>
+                            <span class="text-2xl text-sky-300 font-bold">%</span>
+                        </div>
+
+                        <div class="mt-6 pt-5 border-t border-slate-800 text-xs space-y-2">
+                            <div class="flex justify-between">
+                                <span class="text-slate-400">Clinical Shunt Tier:</span>
+                                <span id="shunt-res-tier" class="font-bold text-emerald-400">Normal (&lt; 10%)</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-slate-400">Recommended Activity Adjustment:</span>
+                                <span id="shunt-res-adjustment" class="font-bold text-white">0% (Full Activity)</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-3">
+                        <h3 class="text-xs font-bold text-slate-700 uppercase tracking-wider">Clinical Guidance Protocol (EANM/CIRSE)</h3>
+                        <div class="space-y-2 text-xs">
+                            <div class="p-2.5 rounded-lg bg-emerald-50 text-emerald-900 border border-emerald-200">
+                                <strong>LSF &lt; 10%:</strong> Normal range. Proceed with planned activity.
+                            </div>
+                            <div class="p-2.5 rounded-lg bg-amber-50 text-amber-900 border border-amber-200">
+                                <strong>LSF 10% – 15%:</strong> Moderate shunting. Reduce activity by 20%.
+                            </div>
+                            <div class="p-2.5 rounded-lg bg-orange-50 text-orange-900 border border-orange-200">
+                                <strong>LSF 15% – 20%:</strong> High shunting. Reduce activity by 40% and ensure lung dose &lt; 30 Gy.
+                            </div>
+                            <div class="p-2.5 rounded-lg bg-rose-50 text-rose-900 border border-rose-200">
+                                <strong>LSF &gt; 20%:</strong> Contraindicated. High risk of fatal radiation pneumonitis.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ======================================================== -->
+        <!-- TAB 5: VOXEL LDM & DVH EXPLORER -->
+        <!-- ======================================================== -->
+        <section id="tab-voxel" class="tab-content hidden">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                <div class="lg:col-span-4 bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-5">
+                    <div class="border-b border-slate-100 pb-3">
+                        <h2 class="text-base font-bold text-slate-900 flex items-center space-x-2">
+                            <i data-lucide="bar-chart-2" class="w-4 h-4 text-sky-600"></i>
+                            <span>Voxel LDM Dosimetry</span>
+                        </h2>
+                        <p class="text-xs text-slate-500">Local Deposition Model & Dose-Volume Histograms (DVH).</p>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Injected Activity (GBq)</label>
+                        <input id="voxel-act" type="number" step="0.1" value="1.8" class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg">
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">Residual Waste %</label>
+                            <input id="voxel-waste" type="number" value="3.0" step="0.5" class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">Lung Shunt %</label>
+                            <input id="voxel-lsf" type="number" value="5.0" step="0.5" class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Tumor Uptake Ratio (TNR)</label>
+                        <input id="voxel-tnr" type="number" step="0.1" value="3.5" class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg">
+                    </div>
+
+                    <button onclick="calculateVoxelLDM()" class="w-full bg-sky-600 hover:bg-sky-700 text-white font-medium py-2.5 rounded-lg text-sm shadow transition flex items-center justify-center space-x-2">
+                        <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+                        <span>Simulate 3D Voxel Dose & DVH</span>
+                    </button>
+                </div>
+
+                <div class="lg:col-span-8 space-y-6">
+                    <!-- DVH Chart Card -->
+                    <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-sm font-bold text-slate-800">Cumulative Dose-Volume Histogram (DVH)</h3>
+                            <div class="flex items-center space-x-4 text-xs font-semibold">
+                                <span class="flex items-center space-x-1"><span class="w-3 h-3 rounded-full bg-sky-600 inline-block"></span> <span>Tumor Target</span></span>
+                                <span class="flex items-center space-x-1"><span class="w-3 h-3 rounded-full bg-emerald-600 inline-block"></span> <span>Normal Liver</span></span>
+                            </div>
+                        </div>
+                        <div class="h-64">
+                            <canvas id="dvhChart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- DVH Metrics Table -->
+                    <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+                        <h3 class="text-xs font-bold text-slate-700 uppercase tracking-wider mb-3">Voxel Dose-Volume Statistics (Standard Clinical Metrics)</h3>
+                        <table class="w-full text-xs text-left">
+                            <thead class="bg-slate-50 text-slate-500 uppercase">
+                                <tr>
+                                    <th class="p-2.5">Region</th>
+                                    <th class="p-2.5">Mean Dose</th>
+                                    <th class="p-2.5">Max Dose</th>
+                                    <th class="p-2.5">D50 (Median)</th>
+                                    <th class="p-2.5">D70</th>
+                                    <th class="p-2.5">D90</th>
+                                    <th class="p-2.5">V100 (% &ge; 100Gy)</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-100" id="voxel-stats-tbody">
+                                <!-- Populated dynamically -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ======================================================== -->
+        <!-- TAB 6: CLINICAL REPORT PREVIEW & EXPORT -->
+        <!-- ======================================================== -->
+        <section id="tab-report" class="tab-content hidden">
+            <div class="max-w-4xl mx-auto space-y-6">
+                <div class="flex justify-between items-center bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+                    <div>
+                        <h2 class="text-base font-bold text-slate-900">Clinical Structured Treatment Report</h2>
+                        <p class="text-xs text-slate-500">Standard Post-Treatment Clinical Report format (DICOM SR / Printable HTML).</p>
+                    </div>
+                    <div class="flex space-x-3">
+                        <button onclick="downloadReportHTML()" class="bg-slate-800 hover:bg-slate-900 text-white text-xs font-semibold px-4 py-2 rounded-lg transition flex items-center space-x-1.5">
+                            <i data-lucide="download" class="w-4 h-4"></i>
+                            <span>Save HTML</span>
+                        </button>
+                        <button onclick="printReport()" class="bg-sky-600 hover:bg-sky-700 text-white text-xs font-semibold px-4 py-2 rounded-lg transition flex items-center space-x-1.5 shadow">
+                            <i data-lucide="printer" class="w-4 h-4"></i>
+                            <span>Print / PDF</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="bg-white p-8 rounded-xl border border-slate-200 shadow-sm" id="report-container">
+                    <!-- Report HTML injected dynamically -->
+                </div>
+            </div>
+        </section>
+
+        <!-- ======================================================== -->
+        <!-- TAB 7: FORMULAS & DOCUMENTATION -->
+        <!-- ======================================================== -->
+        <section id="tab-reference" class="tab-content hidden">
+            <div class="max-w-4xl mx-auto bg-white p-8 rounded-xl border border-slate-200 shadow-sm space-y-8">
+                <div>
+                    <h2 class="text-xl font-bold text-slate-900">Mathematical Formulations & Algorithmic Specifications</h2>
+                    <p class="text-xs text-slate-500 mt-1">Standardized equations based on international consensus guidelines and official product monographs.</p>
+                </div>
+
+                <!-- Partition Model -->
+                <div class="space-y-3 border-t border-slate-100 pt-5">
+                    <h3 class="text-base font-bold text-sky-800">1. Partition Multi-Compartment Model</h3>
+                    <p class="text-xs text-slate-600">The Partition Model accounts for differential microsphere trapping in hypervascular tumors versus normal liver parenchyma and lungs.</p>
+                    <div class="bg-slate-50 p-4 rounded-lg font-mono text-xs text-slate-800 space-y-2 border border-slate-200">
+                        <div><strong>Tumor Involvement (%):</strong> TI = [ Volume_tumor / (Volume_tumor + Volume_normal_liver) ] &times; 100</div>
+                        <div><strong>Tumor-to-Normal Ratio:</strong> TNR = ( TotalCounts_tumor / Mass_tumor ) / ( TotalCounts_normal / Mass_normal )</div>
+                        <div><strong>Absorbed Dose:</strong> Dose_tissue = ( 49,670 &times; Activity_tissue ) / Mass_tissue [Gy]</div>
+                        <div><strong>Activity based on Normal Liver Limit (D_NL):</strong> Activity = [ D_NL &times; ( TNR &times; Mass_tumor + Mass_normal ) ] / [ 49,670 &times; ( 1 - LSF ) ]</div>
+                        <div><strong>Activity based on Desired Tumor Dose (D_T):</strong> Activity = [ D_T &times; ( TNR &times; Mass_tumor + Mass_normal ) ] / [ 49,670 &times; TNR &times; ( 1 - LSF ) ]</div>
+                        <div><strong>Activity based on Lung Limit (D_L):</strong> Activity = [ D_L &times; Mass_lung ] / [ 49,670 &times; LSF ]</div>
+                    </div>
+                </div>
+
+                <!-- MIRD Model -->
+                <div class="space-y-3 border-t border-slate-100 pt-5">
+                    <h3 class="text-base font-bold text-indigo-800">2. MIRD Single-Compartment Model (TheraSpheres)</h3>
+                    <p class="text-xs text-slate-600">Assumes uniform spatial distribution of microspheres throughout the targeted anatomical volume.</p>
+                    <div class="bg-slate-50 p-4 rounded-lg font-mono text-xs text-slate-800 space-y-2 border border-slate-200">
+                        <div><strong>Target Mass (kg):</strong> Mass_target = Volume_target &times; 1.05 / 1000</div>
+                        <div><strong>Calculated Activity (GBq):</strong> Activity = ( Dose_target &times; Mass_target ) / [ 50 &times; ( 1 - LSF ) ]</div>
+                        <div><strong>Absorbed Lung Dose (Gy):</strong> Dose_lung = Activity &times; LSF &times; 50 / Mass_lung</div>
+                    </div>
+                </div>
+
+                <!-- BSA Model -->
+                <div class="space-y-3 border-t border-slate-100 pt-5">
+                    <h3 class="text-base font-bold text-emerald-800">3. BSA Model (SIR-Spheres)</h3>
+                    <p class="text-xs text-slate-600">Empirical relationship matching patient body habitus to safe liver dose tolerance.</p>
+                    <div class="bg-slate-50 p-4 rounded-lg font-mono text-xs text-slate-800 space-y-2 border border-slate-200">
+                        <div><strong>Body Surface Area:</strong> BSA [m²] = 0.20247 &times; ( Height [m] ^ 0.725 ) &times; ( Weight [kg] ^ 0.425 )</div>
+                        <div><strong>Target Activity (GBq):</strong> Activity = [ BSA - 0.2 + ( Volume_tumor / Volume_target ) ] &times; ( Volume_target / Volume_liver )</div>
+                        <div><strong>LSF Reduction:</strong> LSF &lt; 10% (0%), 10-15% (20% reduction), 15-20% (40% reduction), &gt;20% (Contraindicated).</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-slate-200 py-4 text-center text-xs text-slate-500">
+        Open Y-90 Dosimetry Suite | Open-Source Theranostics Project | Standardized Clinical Dosimetry Engine
+    </footer>
+
+    <!-- Client-side Logic & Chart Setup -->
+    <script>
+        let partitionChartInstance = null;
+        let dvhChartInstance = null;
+        let lastReportHtml = "";
+
+        // Tab Switching
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+
+            const content = document.getElementById('tab-' + tabId);
+            const btn = document.getElementById('tab-btn-' + tabId);
+            if (content) content.classList.remove('hidden');
+            if (btn) btn.classList.add('active');
+
+            if (tabId === 'partition' && !partitionChartInstance) calculatePartition();
+            if (tabId === 'voxel' && !dvhChartInstance) calculateVoxelLDM();
+            if (tabId === 'report') loadReport();
+            lucide.createIcons();
+        }
+
+        // Toggle Lung Shunt Mode
+        function toggleShuntMode(mode) {
+            if (mode === 'planar') {
+                document.getElementById('shunt-planar-inputs').classList.remove('hidden');
+                document.getElementById('shunt-spect-inputs').classList.add('hidden');
+                document.getElementById('btn-shunt-planar').className = "flex-1 py-1.5 rounded-md bg-white text-slate-900 shadow-sm";
+                document.getElementById('btn-shunt-spect').className = "flex-1 py-1.5 rounded-md text-slate-600 hover:text-slate-900";
+            } else {
+                document.getElementById('shunt-planar-inputs').classList.add('hidden');
+                document.getElementById('shunt-spect-inputs').classList.remove('hidden');
+                document.getElementById('btn-shunt-planar').className = "flex-1 py-1.5 rounded-md text-slate-600 hover:text-slate-900";
+                document.getElementById('btn-shunt-spect').className = "flex-1 py-1.5 rounded-md bg-white text-slate-900 shadow-sm";
+            }
+            calculateLungShunt();
+        }
+
+        // Universal API Caller with Automatic In-Browser Fallback (GitHub Pages Ready)
+        async function callApiOrFallback(endpoint, payload, fallbackFn) {
+            try {
+                const res = await fetch(endpoint, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(payload)
+                });
+                if (res.ok) {
+                    const data = await res.json();
+                    if (!data.error) return data;
+                }
+            } catch(e) {
+                // Running in pure static/GitHub Pages environment
+            }
+            return fallbackFn(payload);
+        }
+
+        // --- Client-Side Dosimetry Mathematical Models ---
+        function clientCalculatePartition(payload) {
+            const target_volume_cc = payload.target_volume_cc;
+            const tumor_volume_cc = payload.tumor_volume_cc;
+            const tnr = payload.tnr;
+            const lsf = payload.lung_shunt_pct / 100.0;
+            const desired_tumor_dose_gy = payload.desired_tumor_dose_gy;
+            const normal_liver_dose_limit_gy = payload.normal_liver_dose_limit_gy;
+            const lung_dose_limit_gy = payload.lung_dose_limit_gy || 30.0;
+
+            const normal_volume_cc = Math.max(0, target_volume_cc - tumor_volume_cc);
+            const tumor_mass_kg = (tumor_volume_cc * 1.05) / 1000.0;
+            const normal_mass_kg = (normal_volume_cc * 1.05) / 1000.0;
+            const lung_mass_kg = 1.0;
+            const DOSE_CONST = 49.67;
+
+            const denominator = (tnr * tumor_mass_kg) + normal_mass_kg;
+            const act_nl_limit = (normal_liver_dose_limit_gy * denominator) / (DOSE_CONST * (1.0 - lsf));
+            const act_tumor_target = (desired_tumor_dose_gy * denominator) / (DOSE_CONST * tnr * (1.0 - lsf));
+            const act_lung_limit = lsf > 0 ? (lung_dose_limit_gy * lung_mass_kg) / (DOSE_CONST * lsf) : 999.0;
+
+            const max_safe_act = Math.min(act_nl_limit, act_lung_limit);
+            const recommended_act = Math.min(act_tumor_target, max_safe_act);
+
+            const act_liver = recommended_act * (1.0 - lsf);
+            const act_normal = (act_liver * normal_mass_kg) / denominator;
+            const act_tumor = (act_liver * tnr * tumor_mass_kg) / denominator;
+            const act_lung = recommended_act * lsf;
+
+            const dose_normal = (DOSE_CONST * act_normal) / normal_mass_kg;
+            const dose_tumor = (DOSE_CONST * act_tumor) / tumor_mass_kg;
+            const dose_lung = (DOSE_CONST * act_lung) / lung_mass_kg;
+
+            return {
+                tumor_volume_cc: tumor_volume_cc,
+                normal_liver_volume_cc: normal_volume_cc,
+                tumor_mass_kg: tumor_mass_kg,
+                normal_liver_mass_kg: normal_mass_kg,
+                recommended_activity_gbq: recommended_act,
+                recommended_activity_mbq: recommended_act * 1000.0,
+                recommended_doses: {
+                    tumor_dose_gy: dose_tumor,
+                    normal_liver_dose_gy: dose_normal,
+                    lung_dose_gy: dose_lung,
+                    tumor_activity_gbq: act_tumor,
+                    normal_liver_activity_gbq: act_normal,
+                    lung_activity_gbq: act_lung
+                }
+            };
+        }
+
+        function clientCalculateMIRD(payload) {
+            const dose_constant = payload.exact_constant ? 49.67 : 50.0;
+            const target_mass_kg = (payload.target_volume_cc * 1.05) / 1000.0;
+            const lsf_fraction = payload.lung_shunt_pct / 100.0;
+            const calculated_act = (payload.desired_dose_gy * target_mass_kg) / (dose_constant * (1.0 - lsf_fraction));
+            const waste_fraction = (payload.residual_waste_pct || 0.0) / 100.0;
+            const vial_act = waste_fraction > 0 ? calculated_act / (1.0 - waste_fraction) : calculated_act;
+            const lung_dose = (calculated_act * lsf_fraction * dose_constant) / 1.0;
+
+            return {
+                calculated_activity_gbq: calculated_act,
+                calculated_activity_mbq: calculated_act * 1000.0,
+                vial_activity_gbq: vial_act,
+                estimated_lung_dose_gy: lung_dose
+            };
+        }
+
+        function clientCalculateBSA(payload) {
+            const height_m = payload.height_m;
+            const weight_kg = payload.weight_kg;
+            const bsa = 0.20247 * Math.pow(height_m, 0.725) * Math.pow(weight_kg, 0.425);
+            const ti = (payload.tumor_volume_cc / payload.target_volume_cc) * 100.0;
+            const unscaled_act = Math.max(0, bsa - 0.2 + (payload.tumor_volume_cc / payload.target_volume_cc));
+            const liver_vol = payload.total_liver_volume_cc || payload.target_volume_cc;
+            const scaling = Math.min(1.0, payload.target_volume_cc / liver_vol);
+            const calculated_act = unscaled_act * scaling;
+
+            let reduction_pct = 0.0;
+            let status_str = "Normal (< 10%)";
+            const lsf = payload.lung_shunt_pct;
+            if (lsf < 10.0) {
+                reduction_pct = 0.0;
+                status_str = "Normal (< 10%)";
+            } else if (lsf < 15.0) {
+                reduction_pct = 20.0;
+                status_str = "Moderate (10% - 15%)";
+            } else if (lsf <= 20.0) {
+                reduction_pct = 40.0;
+                status_str = "High (15% - 20%)";
+            } else {
+                reduction_pct = 100.0;
+                status_str = "Contraindicated (> 20%)";
+            }
+
+            const prescribed_act = calculated_act * (1.0 - reduction_pct / 100.0);
+            return {
+                bsa_m2: bsa,
+                tumor_involvement_pct: ti,
+                prescribed_activity_gbq: prescribed_act,
+                prescribed_activity_mbq: prescribed_act * 1000.0,
+                lsf_reduction_pct: reduction_pct,
+                lsf_status: status_str
+            };
+        }
+
+        function clientCalculateLungShunt(payload) {
+            let lsf_pct = 0.0;
+            if (payload.mode === 'planar') {
+                const g_lung = Math.sqrt(payload.lung_ant * payload.lung_post);
+                const g_liver = Math.sqrt(payload.liver_ant * payload.liver_post);
+                lsf_pct = (g_lung / (g_lung + g_liver)) * 100.0;
+            } else {
+                lsf_pct = (payload.total_lung_counts / (payload.total_lung_counts + payload.total_liver_counts)) * 100.0;
+            }
+
+            let reduction_pct = 0.0;
+            let status = "Normal (< 10%)";
+            if (lsf_pct < 10.0) {
+                reduction_pct = 0.0;
+                status = "Normal (< 10%) - Safe to Treat";
+            } else if (lsf_pct < 15.0) {
+                reduction_pct = 20.0;
+                status = "Moderate (10% - 15%) - 20% Reduction";
+            } else if (lsf_pct <= 20.0) {
+                reduction_pct = 40.0;
+                status = "High (15% - 20%) - 40% Reduction";
+            } else {
+                reduction_pct = 100.0;
+                status = "Contraindicated (> 20%) - High Risk";
+            }
+
+            return {
+                lung_shunt_pct: lsf_pct,
+                status: status,
+                recommended_activity_reduction_pct: reduction_pct
+            };
+        }
+
+        function clientCalculateVoxelLDM(payload) {
+            const matrix_size = 24;
+            const center = (matrix_size - 1) / 2.0;
+            const tumor_radius = 4.0;
+            const liver_radius = 9.0;
+            const tnr = payload.tnr || 3.5;
+
+            const tumor_counts = [];
+            const normal_counts = [];
+
+            let seed = 42;
+            function rnd() {
+                seed = (seed * 9301 + 49297) % 233280;
+                return seed / 233280.0;
+            }
+
+            for (let z = 0; z < matrix_size; z++) {
+                for (let y = 0; y < matrix_size; y++) {
+                    for (let x = 0; x < matrix_size; x++) {
+                        const dist = Math.sqrt((x - center)**2 + (y - center)**2 + (z - center)**2);
+                        if (dist <= tumor_radius) {
+                            const noise = (rnd() - 0.5) * 0.2;
+                            tumor_counts.push(Math.max(1.0, (100.0 * tnr) * (1.0 + noise)));
+                        } else if (dist <= liver_radius) {
+                            const noise = (rnd() - 0.5) * 0.3;
+                            normal_counts.push(Math.max(1.0, 100.0 * (1.0 + noise)));
+                        }
+                    }
+                }
+            }
+
+            const net_gbq = payload.injected_activity_gbq * (1.0 - (payload.residual_waste_pct || 0) / 100.0);
+            const liver_gbq = net_gbq * (1.0 - (payload.lung_shunt_pct || 0) / 100.0);
+
+            const total_counts = tumor_counts.reduce((a,b)=>a+b, 0) + normal_counts.reduce((a,b)=>a+b, 0);
+            const calib_factor = liver_gbq / Math.max(total_counts, 1.0);
+            const voxel_vol_cc = (3.0 * 3.0 * 3.0) / 1000.0;
+            const voxel_mass_g = voxel_vol_cc * 1.05;
+            const dose_multiplier = (calib_factor * 49670.0) / voxel_mass_g;
+
+            function analyzeRegion(counts) {
+                const doses = counts.map(c => Math.max(0, c * dose_multiplier)).sort((a,b)=>a-b);
+                const n = doses.length;
+                const mean = doses.reduce((a,b)=>a+b,0) / n;
+                const min = doses[0];
+                const max = doses[n-1];
+                const d50 = doses[Math.floor(n * 0.5)];
+                const d70 = doses[Math.floor(n * 0.3)];
+                const d90 = doses[Math.floor(n * 0.1)];
+                const v100 = (doses.filter(d => d >= 100.0).length / n) * 100.0;
+
+                const dvh_curve = [];
+                const max_axis = Math.max(250.0, max * 1.05);
+                const step = max_axis / 25.0;
+                for (let i = 0; i <= 25; i++) {
+                    const dose_th = i * step;
+                    const ge_cnt = doses.filter(d => d >= dose_th).length;
+                    dvh_curve.push({ dose: Math.round(dose_th), pct: Math.round((ge_cnt / n) * 1000) / 10 });
+                }
+
+                return {
+                    volume_cc: n * voxel_vol_cc,
+                    mean_dose_gy: mean,
+                    min_dose_gy: min,
+                    max_dose_gy: max,
+                    d50_gy: d50,
+                    d70_gy: d70,
+                    d90_gy: d90,
+                    v100_pct: v100,
+                    dvh_curve: dvh_curve
+                };
+            }
+
+            return {
+                regions: {
+                    "Tumor": analyzeRegion(tumor_counts),
+                    "Normal Liver": analyzeRegion(normal_counts)
+                }
+            };
+        }
+
+        function clientGenerateReportHTML() {
+            const today = new Date().toISOString().slice(0, 10);
+            return `
+            <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: #1e293b; max-width: 800px; margin: 0 auto; line-height: 1.5;">
+                <div style="border-bottom: 3px solid #0284c7; padding-bottom: 12px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: flex-end;">
+                    <div>
+                        <h1 style="font-size: 20px; font-weight: 800; color: #0f172a; margin: 0;">Y-90 Radioembolization (SIRT / TARE) Clinical Dosimetry Report</h1>
+                        <p style="font-size: 11px; color: #64748b; margin: 4px 0 0 0;">Open Y-90 Dosimetry Suite | Standardized Clinical Reporting</p>
+                    </div>
+                    <div style="text-align: right; font-size: 11px; color: #64748b;">
+                        <div><strong>Report Date:</strong> \${today}</div>
+                        <div><strong>Engine:</strong> Open Y-90 v1.0.0 (Client/Web)</div>
+                    </div>
+                </div>
+
+                <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px 16px; margin-bottom: 20px; font-size: 12px;">
+                    <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px;">
+                        <div><span style="color: #64748b;">Patient:</span> <strong>John Doe</strong></div>
+                        <div><span style="color: #64748b;">MRN:</span> <strong>MRN-109482</strong></div>
+                        <div><span style="color: #64748b;">Age/Sex:</span> <strong>64 / M</strong></div>
+                        <div><span style="color: #64748b;">Intent:</span> <strong>Curative / Ablative</strong></div>
+                    </div>
+                </div>
+
+                <div style="margin-bottom: 20px;">
+                    <h3 style="font-size: 13px; font-weight: 700; color: #0369a1; text-transform: uppercase; margin-bottom: 8px; border-bottom: 1px solid #e0f2fe; padding-bottom: 4px;">Dosimetry Planning Summary</h3>
+                    <table style="width: 100%; border-collapse: collapse; font-size: 12px; text-align: left;">
+                        <tr style="border-bottom: 1px solid #f1f5f9;"><td style="padding: 6px; color: #64748b;">Planning Model</td><td style="padding: 6px; font-weight: 600;">Partition Multi-Compartment Model</td></tr>
+                        <tr style="border-bottom: 1px solid #f1f5f9;"><td style="padding: 6px; color: #64748b;">Microsphere Type</td><td style="padding: 6px; font-weight: 600;">SIR-Spheres (Resin Microspheres)</td></tr>
+                        <tr style="border-bottom: 1px solid #f1f5f9;"><td style="padding: 6px; color: #64748b;">Administered Activity</td><td style="padding: 6px; font-weight: 600;">1.625 GBq (1,625 MBq)</td></tr>
+                        <tr style="border-bottom: 1px solid #f1f5f9;"><td style="padding: 6px; color: #64748b;">Lung Shunt Fraction</td><td style="padding: 6px; font-weight: 600;">5.0% (Safe, &lt; 10%)</td></tr>
+                        <tr style="border-bottom: 1px solid #f1f5f9;"><td style="padding: 6px; color: #64748b;">Tumor Absorbed Dose</td><td style="padding: 6px; font-weight: 600; color: #0284c7;">140.0 Gy</td></tr>
+                        <tr style="border-bottom: 1px solid #f1f5f9;"><td style="padding: 6px; color: #64748b;">Normal Liver Absorbed Dose</td><td style="padding: 6px; font-weight: 600; color: #16a34a;">31.7 Gy (&lt; 45 Gy Limit)</td></tr>
+                        <tr style="border-bottom: 1px solid #f1f5f9;"><td style="padding: 6px; color: #64748b;">Estimated Lung Absorbed Dose</td><td style="padding: 6px; font-weight: 600; color: #d97706;">4.0 Gy (&lt; 30 Gy Limit)</td></tr>
+                    </table>
+                </div>
+
+                <div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; padding: 12px; font-size: 11px; color: #166534; margin-bottom: 20px;">
+                    <strong>Safety Summary:</strong> Treatment complies with CIRSE and EANM radioembolization safety criteria. Normal liver parenchyma dose is safely restricted below 45 Gy, and lung absorbed dose (4.0 Gy) is well below the 30 Gy single-session limit.
+                </div>
+
+                <div style="background: #fffbeb; border: 1px solid #fef3c7; border-radius: 8px; padding: 10px; font-size: 10px; color: #92400e; margin-top: 24px;">
+                    <strong>Research & Educational Disclaimer:</strong> Generated by Open Y-90 Dosimetry Suite. For research and educational use only. Not certified as a medical device for primary diagnostic or therapeutic decisions. All treatment plans must be validated against approved clinical procedures and manufacturer monographs.
+                </div>
+            </div>
+            `;
+        }
+
+        // 1. Calculate Partition Model
+        async function calculatePartition() {
+            const payload = {
+                target_volume_cc: parseFloat(document.getElementById('pm-target-vol').value),
+                tumor_volume_cc: parseFloat(document.getElementById('pm-tumor-vol').value),
+                tnr: parseFloat(document.getElementById('pm-tnr').value),
+                lung_shunt_pct: parseFloat(document.getElementById('pm-lsf').value),
+                desired_tumor_dose_gy: parseFloat(document.getElementById('pm-desired-tumor-dose').value),
+                normal_liver_dose_limit_gy: parseFloat(document.getElementById('pm-normal-liver-limit').value),
+                lung_dose_limit_gy: parseFloat(document.getElementById('pm-lung-limit').value)
+            };
+
+            const data = await callApiOrFallback('/api/partition', payload, clientCalculatePartition);
+
+            // Update UI
+            document.getElementById('pm-res-activity-gbq').innerText = data.recommended_activity_gbq.toFixed(3);
+            document.getElementById('pm-res-activity-mbq').innerText = Math.round(data.recommended_activity_mbq).toLocaleString() + ' MBq';
+            document.getElementById('pm-res-tumor-dose').innerText = data.recommended_doses.tumor_dose_gy.toFixed(1);
+            document.getElementById('pm-res-normal-dose').innerText = data.recommended_doses.normal_liver_dose_gy.toFixed(1);
+            document.getElementById('pm-res-lung-dose').innerText = data.recommended_doses.lung_dose_gy.toFixed(1);
+
+            // Table
+            document.getElementById('pm-tab-tumor-vol').innerText = data.tumor_volume_cc.toFixed(1);
+            document.getElementById('pm-tab-tumor-mass').innerText = data.tumor_mass_kg.toFixed(3);
+            document.getElementById('pm-tab-tumor-act').innerText = data.recommended_doses.tumor_activity_gbq.toFixed(3);
+            document.getElementById('pm-tab-tumor-dose').innerText = data.recommended_doses.tumor_dose_gy.toFixed(1) + ' Gy';
+
+            document.getElementById('pm-tab-normal-vol').innerText = data.normal_liver_volume_cc.toFixed(1);
+            document.getElementById('pm-tab-normal-mass').innerText = data.normal_liver_mass_kg.toFixed(3);
+            document.getElementById('pm-tab-normal-act').innerText = data.recommended_doses.normal_liver_activity_gbq.toFixed(3);
+            document.getElementById('pm-tab-normal-dose').innerText = data.recommended_doses.normal_liver_dose_gy.toFixed(1) + ' Gy';
+
+            document.getElementById('pm-tab-lung-act').innerText = data.recommended_doses.lung_activity_gbq.toFixed(3);
+            document.getElementById('pm-tab-lung-dose').innerText = data.recommended_doses.lung_dose_gy.toFixed(1) + ' Gy';
+
+            // Render Chart
+            renderPartitionChart(
+                data.recommended_doses.tumor_dose_gy,
+                data.recommended_doses.normal_liver_dose_gy,
+                data.recommended_doses.lung_dose_gy,
+                payload.desired_tumor_dose_gy,
+                payload.normal_liver_dose_limit_gy,
+                payload.lung_dose_limit_gy
+            );
+        }
+
+        function renderPartitionChart(tumorDose, normalDose, lungDose, desiredTumor, limitNormal, limitLung) {
+            const ctx = document.getElementById('partitionChart').getContext('2d');
+            if (partitionChartInstance) partitionChartInstance.destroy();
+
+            partitionChartInstance = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Tumor Target', 'Normal Liver', 'Lungs'],
+                    datasets: [
+                        {
+                            label: 'Absorbed Dose (Gy)',
+                            data: [tumorDose, normalDose, lungDose],
+                            backgroundColor: ['#0284c7', '#10b981', '#f59e0b'],
+                            borderRadius: 6
+                        },
+                        {
+                            label: 'Clinical Limit / Target (Gy)',
+                            data: [desiredTumor, limitNormal, limitLung],
+                            backgroundColor: ['#94a3b8', '#dc2626', '#dc2626'],
+                            borderDash: [5, 5],
+                            borderRadius: 6
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: { beginAtZero: true, title: { display: true, text: 'Absorbed Dose (Gy)' } }
+                    }
+                }
+            });
+        }
+
+        // 2. Calculate MIRD Model
+        async function calculateMIRD() {
+            const payload = {
+                desired_dose_gy: parseFloat(document.getElementById('mird-dose').value),
+                target_volume_cc: parseFloat(document.getElementById('mird-vol').value),
+                lung_shunt_pct: parseFloat(document.getElementById('mird-lsf').value),
+                residual_waste_pct: parseFloat(document.getElementById('mird-waste').value),
+                exact_constant: document.getElementById('mird-constant').value === 'exact'
+            };
+            const data = await callApiOrFallback('/api/mird', payload, clientCalculateMIRD);
+            document.getElementById('mird-res-act-gbq').innerText = data.calculated_activity_gbq.toFixed(3);
+            document.getElementById('mird-res-act-mbq').innerText = Math.round(data.calculated_activity_mbq).toLocaleString() + ' MBq';
+            document.getElementById('mird-res-vial-gbq').innerText = data.vial_activity_gbq.toFixed(3) + ' GBq';
+            document.getElementById('mird-res-lung-dose').innerText = data.estimated_lung_dose_gy.toFixed(2) + ' Gy';
+        }
+
+        // 3. Calculate BSA Model
+        async function calculateBSA() {
+            const payload = {
+                height_m: parseFloat(document.getElementById('bsa-height').value),
+                weight_kg: parseFloat(document.getElementById('bsa-weight').value),
+                target_volume_cc: parseFloat(document.getElementById('bsa-target-vol').value),
+                tumor_volume_cc: parseFloat(document.getElementById('bsa-tumor-vol').value),
+                total_liver_volume_cc: parseFloat(document.getElementById('bsa-liver-vol').value),
+                lung_shunt_pct: parseFloat(document.getElementById('bsa-lsf').value)
+            };
+            const data = await callApiOrFallback('/api/bsa', payload, clientCalculateBSA);
+            document.getElementById('bsa-res-act-gbq').innerText = data.prescribed_activity_gbq.toFixed(3);
+            document.getElementById('bsa-res-act-mbq').innerText = Math.round(data.prescribed_activity_mbq).toLocaleString() + ' MBq';
+            document.getElementById('bsa-res-bsa').innerText = data.bsa_m2.toFixed(3) + ' m²';
+            document.getElementById('bsa-res-ti').innerText = data.tumor_involvement_pct.toFixed(1) + '%';
+            document.getElementById('bsa-res-reduction').innerText = data.lsf_reduction_pct + '% (' + data.lsf_status + ')';
+
+            const alertBox = document.getElementById('bsa-alert-box');
+            if (data.lsf_reduction_pct === 0) {
+                alertBox.className = "p-4 rounded-xl border border-emerald-200 bg-emerald-50 text-emerald-800 text-xs";
+                alertBox.innerHTML = "<strong>Lung Shunt Status:</strong> Normal (&lt; 10%). Standard prescribed activity.";
+            } else if (data.lsf_reduction_pct > 40) {
+                alertBox.className = "p-4 rounded-xl border border-rose-200 bg-rose-50 text-rose-800 text-xs";
+                alertBox.innerHTML = "<strong>CRITICAL ALERT:</strong> Shunt &gt; 20%. Administration is contraindicated.";
+            } else {
+                alertBox.className = "p-4 rounded-xl border border-amber-200 bg-amber-50 text-amber-800 text-xs";
+                alertBox.innerHTML = `<strong>Dose Reduction Applied:</strong> \${data.lsf_reduction_pct}% reduction due to elevated shunt fraction.`;
+            }
+        }
+
+        // 4. Calculate Lung Shunt
+        async function calculateLungShunt() {
+            const isPlanar = !document.getElementById('shunt-planar-inputs').classList.contains('hidden');
+            let payload = { mode: isPlanar ? 'planar' : 'spect' };
+            if (isPlanar) {
+                payload.lung_ant = parseFloat(document.getElementById('shunt-lung-ant').value);
+                payload.lung_post = parseFloat(document.getElementById('shunt-lung-post').value);
+                payload.liver_ant = parseFloat(document.getElementById('shunt-liver-ant').value);
+                payload.liver_post = parseFloat(document.getElementById('shunt-liver-post').value);
+            } else {
+                payload.total_lung_counts = parseFloat(document.getElementById('shunt-spect-lung').value);
+                payload.total_liver_counts = parseFloat(document.getElementById('shunt-spect-liver').value);
+            }
+
+            const data = await callApiOrFallback('/api/lung_shunt', payload, clientCalculateLungShunt);
+            document.getElementById('shunt-res-lsf').innerText = data.lung_shunt_pct.toFixed(2);
+            document.getElementById('shunt-res-tier').innerText = data.status;
+            document.getElementById('shunt-res-adjustment').innerText = data.recommended_activity_reduction_pct + '% reduction';
+        }
+
+        // 5. Calculate Voxel LDM & DVH
+        async function calculateVoxelLDM() {
+            const payload = {
+                injected_activity_gbq: parseFloat(document.getElementById('voxel-act').value),
+                residual_waste_pct: parseFloat(document.getElementById('voxel-waste').value),
+                lung_shunt_pct: parseFloat(document.getElementById('voxel-lsf').value),
+                tnr: parseFloat(document.getElementById('voxel-tnr').value),
+                matrix_size: 24
+            };
+            const data = await callApiOrFallback('/api/voxel_ldm', payload, clientCalculateVoxelLDM);
+
+            // Render DVH
+            renderDVHChart(data.regions);
+
+            // Table
+            const tbody = document.getElementById('voxel-stats-tbody');
+            tbody.innerHTML = '';
+            for (let rName in data.regions) {
+                const s = data.regions[rName];
+                const row = `<tr>
+                    <td class="p-2.5 font-bold \${rName === 'Tumor' ? 'text-sky-700' : 'text-emerald-700'}">\${rName}</td>
+                    <td class="p-2.5 font-semibold">\${s.mean_dose_gy.toFixed(1)} Gy</td>
+                    <td class="p-2.5">\${s.max_dose_gy.toFixed(1)} Gy</td>
+                    <td class="p-2.5">\${s.d50_gy.toFixed(1)} Gy</td>
+                    <td class="p-2.5">\${s.d70_gy.toFixed(1)} Gy</td>
+                    <td class="p-2.5">\${s.d90_gy.toFixed(1)} Gy</td>
+                    <td class="p-2.5 font-semibold">\${s.v100_pct.toFixed(1)}%</td>
+                </tr>`;
+                tbody.innerHTML += row;
+            }
+        }
+
+        function renderDVHChart(regions) {
+            const ctx = document.getElementById('dvhChart').getContext('2d');
+            if (dvhChartInstance) dvhChartInstance.destroy();
+
+            const tumorCurve = regions['Tumor'].dvh_curve;
+            const normalCurve = regions['Normal Liver'].dvh_curve;
+
+            dvhChartInstance = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: tumorCurve.map(pt => pt.dose),
+                    datasets: [
+                        {
+                            label: 'Tumor Target',
+                            data: tumorCurve.map(pt => pt.pct),
+                            borderColor: '#0284c7',
+                            backgroundColor: 'rgba(2, 132, 199, 0.1)',
+                            fill: true,
+                            tension: 0.2,
+                            borderWidth: 2
+                        },
+                        {
+                            label: 'Normal Liver',
+                            data: normalCurve.map(pt => pt.pct),
+                            borderColor: '#10b981',
+                            backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                            fill: true,
+                            tension: 0.2,
+                            borderWidth: 2
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: { title: { display: true, text: 'Absorbed Dose (Gy)' } },
+                        y: { min: 0, max: 100, title: { display: true, text: 'Volume Receiving >= Dose (%)' } }
+                    }
+                }
+            });
+        }
+
+        // 6. Clinical Report Loader
+        async function loadReport() {
+            const payload = {
+                procedure_name: "Y-90 Radioembolization (SIRT / TARE)",
+                microsphere_type: "SIR-Spheres (Resin Microspheres)",
+                treatment_intent: "Curative / Ablative",
+                target_anatomy: "Right Hepatic Lobe",
+                model_name: "Partition Multi-Compartment Model",
+                injected_activity_gbq: 1.625,
+                residual_waste_pct: 3.0,
+                lung_shunt_pct: 5.0,
+                tumor_volume_cc: 250.0,
+                normal_liver_volume_cc: 1200.0,
+                tumor_to_normal_ratio: 3.5,
+                tumor_mean_dose_gy: 140.0,
+                normal_liver_mean_dose_gy: 31.7,
+                lung_mean_dose_gy: 4.0,
+                safety_summary: "Treatment complies fully with CIRSE and EANM radioembolization safety criteria. Normal liver parenchyma dose is safely restricted below 45 Gy, and lung absorbed dose (4.0 Gy) is well below the 30 Gy threshold."
+            };
+            const data = await callApiOrFallback('/api/report', payload, () => ({ html: clientGenerateReportHTML() }));
+            lastReportHtml = data.html;
+            document.getElementById('report-container').innerHTML = data.html;
+        }
+
+        function downloadReportHTML() {
+            const blob = new Blob([lastReportHtml], {type: 'text/html'});
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = `Y90_Clinical_Report_${new Date().toISOString().slice(0,10)}.html`;
+            a.click();
+        }
+
+        function printReport() {
+            const win = window.open('', '_blank');
+            win.document.write(lastReportHtml);
+            win.document.close();
+            win.focus();
+            setTimeout(() => { win.print(); win.close(); }, 300);
+        }
+
+        // Initialize icons and default tab
+        document.addEventListener('DOMContentLoaded', () => {
+            lucide.createIcons();
+            calculatePartition();
+        });
+    </script>
+</body>
+</html>

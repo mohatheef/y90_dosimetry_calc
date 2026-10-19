@@ -93,9 +93,23 @@ $$\text{LSF} [\%] = \frac{G_{\text{lung}}}{G_{\text{lung}} + G_{\text{liver}}} \
 
 ---
 
-## 🚀 Quickstart: Launching the Web App
+---
 
-Launch the local interactive dashboard:
+## 🌐 Live Web Application (Permanent Zero-Server Hosting)
+
+You can use the interactive dosimetry suite directly in your browser with **no installation required**:
+
+👉 **[https://mohatheef.github.io/y90_dosimetry_calc/](https://mohatheef.github.io/y90_dosimetry_calc/)**
+
+* **100% Free & Permanent**: Deployed via GitHub Pages from the `docs/` directory.
+* **Privacy-First (Zero Data Transfer)**: All clinical dosimetry models (Partition, MIRD, BSA, LSF, and Voxel LDM) execute entirely inside your local browser via client-side JavaScript. No patient parameters or imaging metrics ever leave your machine.
+* **Dual Engine Architecture**: Automatically connects to the local Python REST backend when running locally, or falls back to the high-precision in-browser engine when served statically.
+
+---
+
+## 🚀 Quickstart: Launching Locally with Python Backend
+
+If you prefer to run the full Python standard library backend locally:
 
 ```bash
 # Default (localhost:port)
@@ -107,6 +121,20 @@ python3 web_app/server.py localhost port
 
 Then open your browser to:
 👉 **`http://localhost:8080`** (or your designated host and port)
+
+---
+
+## ☁️ Permanent Hosting Options
+
+This project is architected for zero maintenance and permanent availability:
+
+1. **GitHub Pages (Recommended & Pre-configured)**:
+   - Pre-built in the `/docs` folder.
+   - Simply enable in your GitHub repository:
+     `Settings -> Pages -> Build and deployment -> Source: Deploy from a branch -> Branch: main /docs -> Save`.
+   - Your live URL is automatically created at `https://<username>.github.io/<repo-name>/`.
+2. **Cloud Containers (Render.com / Hugging Face Spaces / Railway)**:
+   - Because `web_app/server.py` uses only Python standard library without external dependencies, it can be deployed on any free container service (e.g., Hugging Face Docker Space or Render Web Service) using `python3 web_app/server.py 0.0.0.0 $PORT`.
 
 ---
 
