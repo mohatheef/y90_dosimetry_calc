@@ -47,8 +47,10 @@ class ClinicalReportData:
 def generate_markdown_report(data: ClinicalReportData) -> str:
     """Generate professional GitHub-flavored Markdown clinical report."""
     md = f"""# Y-90 Radioembolization Dosimetry & Treatment Report
-**Institution**: Advanced Theranostics & Interventional Oncology  
-**Date of Service**: {data.patient.date_of_service} | **Status**: Verified Final
+> ⚠️ **DISCLAIMER: FOR RESEARCH AND EDUCATIONAL USE ONLY**  
+> *This report is generated for research, educational, and verification purposes. It is not cleared as a medical device and must not be used as the sole basis for live clinical decision-making or patient treatment. All plans must be verified using validated, approved clinical systems.*
+
+**Date of Service**: {data.patient.date_of_service} | **Status**: Research Simulation
 
 ---
 
@@ -132,8 +134,12 @@ def generate_html_report(data: ClinicalReportData) -> str:
 </head>
 <body>
     <div class="header">
-        <h1>Y-90 Radioembolization Dosimetry & Clinical Treatment Report</h1>
-        <div class="sub">Department of Nuclear Medicine & Interventional Oncology | Verified Clinical Document</div>
+        <h1>Y-90 Radioembolization Dosimetry & Treatment Report</h1>
+        <div class="sub">Research & Educational Simulation Document</div>
+    </div>
+
+    <div style="background: #fffbeb; border: 1px solid #fef3c7; border-left: 4px solid #f59e0b; padding: 10px 14px; margin-bottom: 20px; border-radius: 4px; font-size: 12px; color: #92400e;">
+        <strong>RESEARCH AND EDUCATIONAL USE ONLY:</strong> This software is not cleared as a medical device and is not intended for primary clinical decision-making or patient treatment. All plans must be verified using validated, approved clinical systems.
     </div>
 
     <h3>Patient & Procedure Demographics</h3>
