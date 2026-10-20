@@ -50,7 +50,7 @@ This project implements standardized mathematical methods for resin and glass mi
 ## 📐 Mathematical Formulations
 
 ### 1. Partition Multi-Compartment Model
-$$\text{Tumor Involvement [\%]} = \frac{V_{\text{tumor}}}{V_{\text{tumor}} + V_{\text{normal\_liver}}} \times 100$$
+$$\text{Tumor Involvement [\%]} = \frac{V_{\text{tumor}}}{V_{\text{tumor}} + V_{\text{normal}}} \times 100 = \frac{V_{\text{tumor}}}{V_{\text{target}}} \times 100$$
 
 $$\text{TNR} = \frac{\text{TotalCounts}_{\text{tumor}} / M_{\text{tumor}}}{\text{TotalCounts}_{\text{normal}} / M_{\text{normal}}}$$
 

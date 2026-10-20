@@ -227,13 +227,13 @@ class Y90RequestHandler(SimpleHTTPRequestHandler):
             elif path == "/api/report":
                 p_dict = payload.get("patient", {})
                 patient = PatientInfo(
-                    name=p_dict.get("name", "John Doe"),
-                    patient_id=p_dict.get("patient_id", "MRN-109482"),
+                    name=p_dict.get("name", "Anonymous Subject"),
+                    patient_id=p_dict.get("patient_id", "Y90-SUBJ-001"),
                     dob=p_dict.get("dob", "1960-03-24"),
                     sex=p_dict.get("sex", "M"),
                     height_m=float(p_dict.get("height_m", 1.75)),
-                    weight_kg=float(p_dict.get("weight_kg", 80.0)),
-                    referring_physician=p_dict.get("referring_physician", "Dr. A. Smith, IR"),
+                    weight_kg=float(p_dict.get("weight_kg", 78.0)),
+                    referring_physician=p_dict.get("referring_physician", "Interventional Radiologist"),
                     dosimetrist=p_dict.get("dosimetrist", "Medical Physicist")
                 )
                 rep_data = ClinicalReportData(
