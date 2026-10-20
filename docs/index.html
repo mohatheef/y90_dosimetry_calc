@@ -383,7 +383,7 @@
                         </div>
                         <div>
                             <label class="block text-xs font-semibold text-slate-600 mb-1">Lung Shunt (LSF %)</label>
-                            <input id="bsa-lsf" type="number" value="6.5" step="0.1" class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:outline-none">
+                            <input id="bsa-lsf" type="number" value="5.0" step="0.1" class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:outline-none">
                         </div>
                     </div>
 
@@ -400,18 +400,18 @@
 
                 <div class="lg:col-span-7 space-y-6">
                     <div class="bg-gradient-to-br from-emerald-900 to-slate-900 text-white p-6 rounded-xl shadow-md">
-                        <span class="text-xs uppercase font-bold tracking-wider text-emerald-400">Final Prescribed Activity (SIR-Spheres)</span>
+                        <span class="text-xs uppercase font-bold tracking-wider text-emerald-400">Prescribed Injected Activity (SIR-Spheres)</span>
                         <div class="flex items-baseline space-x-3 mt-1">
-                            <span id="bsa-res-act-gbq" class="text-4xl font-black">1.921</span>
+                            <span id="bsa-res-act-gbq" class="text-4xl font-black">1.902</span>
                             <span class="text-lg text-emerald-300 font-semibold">GBq</span>
                             <span class="text-slate-400">/</span>
-                            <span id="bsa-res-act-mbq" class="text-lg text-slate-300 font-medium">1,921 MBq</span>
+                            <span id="bsa-res-act-mbq" class="text-lg text-slate-300 font-medium">1,902 MBq</span>
                         </div>
 
                         <div class="grid grid-cols-3 gap-3 mt-6 pt-5 border-t border-emerald-800/60 text-xs">
                             <div>
                                 <span class="text-emerald-300 block">Patient BSA:</span>
-                                <span id="bsa-res-bsa" class="text-lg font-bold">1.954 m²</span>
+                                <span id="bsa-res-bsa" class="text-lg font-bold">1.935 m²</span>
                             </div>
                             <div>
                                 <span class="text-emerald-300 block">Tumor Involvement:</span>
@@ -455,21 +455,21 @@
                         <div class="grid grid-cols-2 gap-4">
                             <div>
                                 <label class="block text-xs font-semibold text-slate-600 mb-1">Lung Anterior Counts</label>
-                                <input id="shunt-lung-ant" type="number" value="12500" class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg">
+                                <input id="shunt-lung-ant" type="number" value="7500" class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg">
                             </div>
                             <div>
                                 <label class="block text-xs font-semibold text-slate-600 mb-1">Lung Posterior Counts</label>
-                                <input id="shunt-lung-post" type="number" value="13200" class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg">
+                                <input id="shunt-lung-post" type="number" value="7500" class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg">
                             </div>
                         </div>
                         <div class="grid grid-cols-2 gap-4">
                             <div>
                                 <label class="block text-xs font-semibold text-slate-600 mb-1">Liver Anterior Counts</label>
-                                <input id="shunt-liver-ant" type="number" value="145000" class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg">
+                                <input id="shunt-liver-ant" type="number" value="142500" class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg">
                             </div>
                             <div>
                                 <label class="block text-xs font-semibold text-slate-600 mb-1">Liver Posterior Counts</label>
-                                <input id="shunt-liver-post" type="number" value="142000" class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg">
+                                <input id="shunt-liver-post" type="number" value="142500" class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg">
                             </div>
                         </div>
                     </div>
@@ -478,7 +478,7 @@
                     <div id="shunt-spect-inputs" class="space-y-4 hidden">
                         <div>
                             <label class="block text-xs font-semibold text-slate-600 mb-1">Total 3D Lung Volume Counts</label>
-                            <input id="shunt-spect-lung" type="number" value="28000" class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg">
+                            <input id="shunt-spect-lung" type="number" value="20000" class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg">
                         </div>
                         <div>
                             <label class="block text-xs font-semibold text-slate-600 mb-1">Total 3D Liver Volume Counts</label>
@@ -496,7 +496,7 @@
                     <div class="bg-gradient-to-br from-slate-900 to-sky-950 text-white p-6 rounded-xl shadow-md">
                         <span class="text-xs uppercase font-bold tracking-wider text-sky-400">Calculated Lung Shunt Fraction</span>
                         <div class="flex items-baseline space-x-3 mt-1">
-                            <span id="shunt-res-lsf" class="text-5xl font-black">8.19</span>
+                            <span id="shunt-res-lsf" class="text-5xl font-black">5.00</span>
                             <span class="text-2xl text-sky-300 font-bold">%</span>
                         </div>
 
@@ -509,6 +509,14 @@
                                 <span class="text-slate-400">Recommended Activity Adjustment:</span>
                                 <span id="shunt-res-adjustment" class="font-bold text-white">0% (Full Activity)</span>
                             </div>
+                        </div>
+
+                        <div class="mt-4 pt-3 border-t border-slate-800">
+                            <button onclick="applyShuntToAllModels()" class="w-full bg-sky-600 hover:bg-sky-500 text-white font-semibold py-2 rounded-lg text-xs transition flex items-center justify-center space-x-2 shadow">
+                                <i data-lucide="share-2" class="w-3.5 h-3.5"></i>
+                                <span>Apply Measured LSF to All Planning Models</span>
+                            </button>
+                            <p class="text-[10px] text-slate-400 text-center mt-1">Synchronizes this LSF across Partition, MIRD, BSA, and Voxel LDM tabs.</p>
                         </div>
                     </div>
 
@@ -712,8 +720,11 @@
             if (content) content.classList.remove('hidden');
             if (btn) btn.classList.add('active');
 
-            if (tabId === 'partition' && !partitionChartInstance) calculatePartition();
-            if (tabId === 'voxel' && !dvhChartInstance) calculateVoxelLDM();
+            if (tabId === 'partition') calculatePartition();
+            if (tabId === 'mird') calculateMIRD();
+            if (tabId === 'bsa') calculateBSA();
+            if (tabId === 'shunt') calculateLungShunt();
+            if (tabId === 'voxel') calculateVoxelLDM();
             if (tabId === 'report') loadReport();
             lucide.createIcons();
         }
@@ -1170,6 +1181,44 @@
             document.getElementById('shunt-res-adjustment').innerText = data.recommended_activity_reduction_pct + '% reduction';
         }
 
+        // Apply Measured LSF across all planning models
+        function applyShuntToAllModels() {
+            const rawLsf = parseFloat(document.getElementById('shunt-res-lsf').innerText);
+            if (isNaN(rawLsf)) return;
+
+            // Partition Model
+            const pmLsf = document.getElementById('pm-lsf');
+            if (pmLsf) {
+                pmLsf.value = rawLsf.toFixed(1);
+                const pmLsfVal = document.getElementById('pm-lsf-val');
+                if (pmLsfVal) pmLsfVal.innerText = rawLsf.toFixed(1) + '%';
+                calculatePartition();
+            }
+
+            // MIRD Model
+            const mirdLsf = document.getElementById('mird-lsf');
+            if (mirdLsf) {
+                mirdLsf.value = rawLsf.toFixed(1);
+                calculateMIRD();
+            }
+
+            // BSA Model
+            const bsaLsf = document.getElementById('bsa-lsf');
+            if (bsaLsf) {
+                bsaLsf.value = rawLsf.toFixed(1);
+                calculateBSA();
+            }
+
+            // Voxel LDM
+            const voxelLsf = document.getElementById('voxel-lsf');
+            if (voxelLsf) {
+                voxelLsf.value = rawLsf.toFixed(1);
+                calculateVoxelLDM();
+            }
+
+            alert(`✅ Measured Lung Shunt Fraction (${rawLsf.toFixed(2)}%) successfully synchronized across Partition, MIRD, BSA, and Voxel modules.`);
+        }
+
         // 5. Calculate Voxel LDM & DVH
         async function calculateVoxelLDM() {
             const payload = {
@@ -1285,10 +1334,13 @@
             setTimeout(() => { win.print(); win.close(); }, 300);
         }
 
-        // Initialize icons and default tab
+        // Initialize icons and all calculations on load
         document.addEventListener('DOMContentLoaded', () => {
             lucide.createIcons();
             calculatePartition();
+            calculateBSA();
+            calculateMIRD();
+            calculateLungShunt();
         });
     </script>
 </body>
