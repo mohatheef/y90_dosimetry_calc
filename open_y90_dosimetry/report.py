@@ -118,18 +118,25 @@ def generate_html_report(data: ClinicalReportData) -> str:
     <meta charset="UTF-8">
     <title>Y-90 Treatment Report - {data.patient.patient_id}</title>
     <style>
-        body {{ font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; margin: 40px; color: #1e293b; background: #fff; line-height: 1.5; }}
+        body {{ font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; margin: 30px auto; max-width: 800px; padding: 0 16px; color: #1e293b; background: #fff; line-height: 1.5; }}
         .header {{ border-bottom: 3px solid #0284c7; padding-bottom: 12px; margin-bottom: 24px; }}
-        h1 {{ font-size: 22px; color: #0f172a; margin: 0 0 6px 0; }}
-        .sub {{ font-size: 13px; color: #64748b; }}
+        h1 {{ font-size: 20px; color: #0f172a; margin: 0 0 6px 0; }}
+        .sub {{ font-size: 12px; color: #64748b; }}
         table {{ width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 13px; }}
         th, td {{ border: 1px solid #cbd5e1; padding: 8px 12px; text-align: left; }}
         th {{ background-color: #f1f5f9; font-weight: 600; color: #334155; }}
         .badge-pass {{ background: #dcfce7; color: #166534; padding: 2px 8px; border-radius: 4px; font-weight: 600; }}
         .badge-warn {{ background: #fef9c3; color: #854d0e; padding: 2px 8px; border-radius: 4px; font-weight: 600; }}
         .alert-box {{ background: #f8fafc; border-left: 4px solid #0284c7; padding: 12px 16px; margin: 16px 0; border-radius: 0 6px 6px 0; }}
-        .signoff {{ margin-top: 40px; border-top: 1px solid #e2e8f0; padding-top: 20px; display: flex; justify-content: space-between; font-size: 13px; color: #475569; }}
-        @media print {{ body {{ margin: 15mm; }} }}
+        .signoff {{ margin-top: 40px; border-top: 1px solid #e2e8f0; padding-top: 20px; display: flex; flex-wrap: wrap; gap: 16px; justify-content: space-between; font-size: 13px; color: #475569; }}
+        @media (max-width: 640px) {{
+            body {{ margin: 12px auto; padding: 0 10px; }}
+            h1 {{ font-size: 17px; }}
+            table {{ font-size: 11px; }}
+            th, td {{ padding: 6px 8px; }}
+            .signoff {{ flex-direction: column; gap: 8px; }}
+        }}
+        @media print {{ body {{ margin: 15mm; max-width: 100%; }} }}
     </style>
 </head>
 <body>

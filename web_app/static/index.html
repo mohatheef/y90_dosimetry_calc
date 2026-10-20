@@ -23,67 +23,75 @@
             padding: 8px 12px;
             font-style: italic;
         }
+        /* Mobile touch scrollbar utilities */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
     </style>
 </head>
 <body class="bg-slate-50 text-slate-800 antialiased min-h-screen flex flex-col">
 
     <!-- Top Header Bar -->
     <header class="bg-white border-b border-slate-200 sticky top-0 z-50 shadow-sm">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-            <div class="flex items-center space-x-3">
-                <div class="w-10 h-10 rounded-lg bg-sky-600 flex items-center justify-center text-white font-bold text-xl shadow-md">
+        <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 h-14 sm:h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-2.5 sm:space-x-3">
+                <div class="w-9 h-9 sm:w-10 sm:h-10 rounded-lg bg-sky-600 flex items-center justify-center text-white font-bold text-lg sm:text-xl shadow-md flex-shrink-0">
                     Y90
                 </div>
                 <div>
-                    <h1 class="text-lg font-bold text-slate-900 leading-tight">Open Y-90 Dosimetry Suite</h1>
-                    <p class="text-xs text-slate-500">Standardized Multi-Compartment Clinical Radioembolization Dosimetry</p>
+                    <h1 class="text-sm sm:text-lg font-bold text-slate-900 leading-tight">Open Y-90 Dosimetry Suite</h1>
+                    <p class="text-[11px] sm:text-xs text-slate-500 hidden sm:block">Standardized Multi-Compartment Clinical Radioembolization Dosimetry</p>
                 </div>
             </div>
-            <div class="flex items-center space-x-3">
-                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800">
+            <div class="flex items-center space-x-2 sm:space-x-3">
+                <span class="hidden md:inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800">
                     <span class="w-2 h-2 rounded-full bg-emerald-500 mr-1.5 animate-pulse"></span> Open-Source Engine Ready
                 </span>
-                <button onclick="switchTab('report')" class="bg-sky-600 hover:bg-sky-700 text-white text-xs font-semibold px-3 py-1.5 rounded-md flex items-center space-x-1.5 transition">
-                    <i data-lucide="file-text" class="w-4 h-4"></i>
-                    <span>Generate Clinical Report</span>
+                <button onclick="switchTab('report')" class="bg-sky-600 hover:bg-sky-700 text-white text-xs font-semibold px-2.5 sm:px-3 py-1.5 rounded-md flex items-center space-x-1.5 transition flex-shrink-0">
+                    <i data-lucide="file-text" class="w-3.5 h-3.5 sm:w-4 sm:h-4"></i>
+                    <span><span class="hidden sm:inline">Generate Clinical </span>Report</span>
                 </button>
             </div>
         </div>
     </header>
     <!-- Research Disclaimer Banner -->
-    <div class="bg-amber-50 border-b border-amber-200 px-4 py-2 text-center text-xs text-amber-900 font-medium flex items-center justify-center space-x-2">
+    <div class="bg-amber-50 border-b border-amber-200 px-3 sm:px-4 py-2 text-[11px] sm:text-xs text-amber-900 font-medium flex items-center justify-center space-x-1.5 sm:space-x-2">
         <i data-lucide="alert-triangle" class="w-4 h-4 text-amber-600 flex-shrink-0"></i>
         <span><strong>For Research & Educational Use Only.</strong> Not a certified medical device and not validated for primary clinical decision-making. Always verify against approved clinical protocols.</span>
     </div>
 
     <!-- Navigation Tabs -->
     <nav class="bg-white border-b border-slate-200">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex space-x-8 overflow-x-auto">
-            <button onclick="switchTab('partition')" id="tab-btn-partition" class="tab-btn active py-3 text-sm text-slate-600 hover:text-slate-900 flex items-center space-x-2">
+        <div class="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8 flex space-x-4 sm:space-x-8 overflow-x-auto no-scrollbar scroll-smooth" style="-webkit-overflow-scrolling: touch;">
+            <button onclick="switchTab('partition')" id="tab-btn-partition" class="tab-btn active py-3 text-xs sm:text-sm text-slate-600 hover:text-slate-900 flex items-center space-x-1.5 sm:space-x-2 whitespace-nowrap flex-shrink-0">
                 <i data-lucide="layers" class="w-4 h-4"></i>
                 <span>Partition Model (Multi-Compartment)</span>
             </button>
-            <button onclick="switchTab('mird')" id="tab-btn-mird" class="tab-btn py-3 text-sm text-slate-600 hover:text-slate-900 flex items-center space-x-2">
+            <button onclick="switchTab('mird')" id="tab-btn-mird" class="tab-btn py-3 text-xs sm:text-sm text-slate-600 hover:text-slate-900 flex items-center space-x-1.5 sm:space-x-2 whitespace-nowrap flex-shrink-0">
                 <i data-lucide="activity" class="w-4 h-4"></i>
                 <span>MIRD Model (TheraSpheres)</span>
             </button>
-            <button onclick="switchTab('bsa')" id="tab-btn-bsa" class="tab-btn py-3 text-sm text-slate-600 hover:text-slate-900 flex items-center space-x-2">
+            <button onclick="switchTab('bsa')" id="tab-btn-bsa" class="tab-btn py-3 text-xs sm:text-sm text-slate-600 hover:text-slate-900 flex items-center space-x-1.5 sm:space-x-2 whitespace-nowrap flex-shrink-0">
                 <i data-lucide="user" class="w-4 h-4"></i>
                 <span>BSA Model (SIR-Spheres)</span>
             </button>
-            <button onclick="switchTab('shunt')" id="tab-btn-shunt" class="tab-btn py-3 text-sm text-slate-600 hover:text-slate-900 flex items-center space-x-2">
+            <button onclick="switchTab('shunt')" id="tab-btn-shunt" class="tab-btn py-3 text-xs sm:text-sm text-slate-600 hover:text-slate-900 flex items-center space-x-1.5 sm:space-x-2 whitespace-nowrap flex-shrink-0">
                 <i data-lucide="wind" class="w-4 h-4"></i>
                 <span>Lung Shunt Fraction (2D / 3D)</span>
             </button>
-            <button onclick="switchTab('voxel')" id="tab-btn-voxel" class="tab-btn py-3 text-sm text-slate-600 hover:text-slate-900 flex items-center space-x-2">
+            <button onclick="switchTab('voxel')" id="tab-btn-voxel" class="tab-btn py-3 text-xs sm:text-sm text-slate-600 hover:text-slate-900 flex items-center space-x-1.5 sm:space-x-2 whitespace-nowrap flex-shrink-0">
                 <i data-lucide="bar-chart-2" class="w-4 h-4"></i>
                 <span>Voxel LDM & DVH Explorer</span>
             </button>
-            <button onclick="switchTab('report')" id="tab-btn-report" class="tab-btn py-3 text-sm text-slate-600 hover:text-slate-900 flex items-center space-x-2">
+            <button onclick="switchTab('report')" id="tab-btn-report" class="tab-btn py-3 text-xs sm:text-sm text-slate-600 hover:text-slate-900 flex items-center space-x-1.5 sm:space-x-2 whitespace-nowrap flex-shrink-0">
                 <i data-lucide="printer" class="w-4 h-4"></i>
                 <span>Clinical Report</span>
             </button>
-            <button onclick="switchTab('reference')" id="tab-btn-reference" class="tab-btn py-3 text-sm text-slate-600 hover:text-slate-900 flex items-center space-x-2">
+            <button onclick="switchTab('reference')" id="tab-btn-reference" class="tab-btn py-3 text-xs sm:text-sm text-slate-600 hover:text-slate-900 flex items-center space-x-1.5 sm:space-x-2 whitespace-nowrap flex-shrink-0">
                 <i data-lucide="book-open" class="w-4 h-4"></i>
                 <span>Formulas & Documentation</span>
             </button>
@@ -91,15 +99,15 @@
     </nav>
 
     <!-- Main Content Area -->
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-1 w-full">
+    <main class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-5 sm:py-8 flex-1 w-full">
 
         <!-- ======================================================== -->
         <!-- TAB 1: PARTITION MODEL (DEFAULT / PRIMARY) -->
         <!-- ======================================================== -->
         <section id="tab-partition" class="tab-content block">
-            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8">
                 <!-- Inputs Column -->
-                <div class="lg:col-span-5 bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-5">
+                <div class="lg:col-span-5 bg-white p-4 sm:p-6 rounded-xl border border-slate-200 shadow-sm space-y-4 sm:space-y-5">
                     <div class="border-b border-slate-100 pb-3">
                         <h2 class="text-base font-bold text-slate-900 flex items-center space-x-2">
                             <i data-lucide="sliders" class="w-4 h-4 text-sky-600"></i>
@@ -108,7 +116,7 @@
                         <p class="text-xs text-slate-500">Solves 3-compartment simultaneous dosimetry for Tumor, Normal Liver & Lungs.</p>
                     </div>
 
-                    <div class="grid grid-cols-2 gap-4">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                         <div>
                             <label class="block text-xs font-semibold text-slate-600 mb-1">Target Liver Volume (cc)</label>
                             <input id="pm-target-vol" type="number" value="1450" class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:outline-none">
@@ -138,7 +146,7 @@
 
                     <div class="border-t border-slate-100 pt-3 space-y-3">
                         <h3 class="text-xs font-bold text-slate-700 uppercase tracking-wider">Clinical Prescriptions & Limits</h3>
-                        <div class="grid grid-cols-2 gap-4">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                             <div>
                                 <label class="block text-xs font-semibold text-slate-600 mb-1">Desired Tumor Dose (Gy)</label>
                                 <input id="pm-desired-tumor-dose" type="number" value="140" class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:outline-none">
@@ -161,89 +169,91 @@
                 </div>
 
                 <!-- Results Column -->
-                <div class="lg:col-span-7 space-y-6">
+                <div class="lg:col-span-7 space-y-5 sm:space-y-6">
                     <!-- Prescribed Activity Hero Card -->
-                    <div class="bg-gradient-to-br from-sky-900 to-slate-900 text-white p-6 rounded-xl shadow-md">
-                        <div class="flex justify-between items-start">
+                    <div class="bg-gradient-to-br from-sky-900 to-slate-900 text-white p-4 sm:p-6 rounded-xl shadow-md">
+                        <div class="flex flex-col sm:flex-row justify-between items-start gap-2 sm:gap-0">
                             <div>
                                 <span class="text-xs uppercase font-bold tracking-wider text-sky-400">Recommended Prescribed Activity</span>
-                                <div class="flex items-baseline space-x-3 mt-1">
-                                    <span id="pm-res-activity-gbq" class="text-4xl font-black">1.847</span>
-                                    <span class="text-lg text-sky-300 font-semibold">GBq</span>
+                                <div class="flex flex-wrap items-baseline gap-x-2 sm:gap-x-3 gap-y-0.5 mt-1">
+                                    <span id="pm-res-activity-gbq" class="text-3xl sm:text-4xl font-black">1.847</span>
+                                    <span class="text-base sm:text-lg text-sky-300 font-semibold">GBq</span>
                                     <span class="text-slate-400">/</span>
-                                    <span id="pm-res-activity-mbq" class="text-lg text-slate-300 font-medium">1,847 MBq</span>
+                                    <span id="pm-res-activity-mbq" class="text-base sm:text-lg text-slate-300 font-medium">1,847 MBq</span>
                                 </div>
                             </div>
-                            <div id="pm-safety-badge" class="px-3 py-1 bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 rounded-full text-xs font-semibold">
+                            <div id="pm-safety-badge" class="px-2.5 sm:px-3 py-1 bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 rounded-full text-xs font-semibold">
                                 ✓ Fully Compliant
                             </div>
                         </div>
 
                         <!-- Absorbed Dose Breakdown -->
-                        <div class="grid grid-cols-3 gap-3 mt-6 pt-5 border-t border-sky-800/60">
-                            <div class="bg-sky-950/60 p-3 rounded-lg border border-sky-800/40">
-                                <span class="text-[11px] text-sky-300 font-semibold block">Tumor Dose (D_t)</span>
-                                <span id="pm-res-tumor-dose" class="text-2xl font-bold text-white">140.0</span>
-                                <span class="text-xs text-sky-400"> Gy</span>
+                        <div class="grid grid-cols-3 gap-2 sm:gap-3 mt-5 pt-4 sm:pt-5 border-t border-sky-800/60">
+                            <div class="bg-sky-950/60 p-2 sm:p-3 rounded-lg border border-sky-800/40">
+                                <span class="text-[10px] sm:text-[11px] text-sky-300 font-semibold block truncate">Tumor Dose (D_t)</span>
+                                <span id="pm-res-tumor-dose" class="text-lg sm:text-2xl font-bold text-white">140.0</span>
+                                <span class="text-[10px] sm:text-xs text-sky-400"> Gy</span>
                             </div>
-                            <div class="bg-sky-950/60 p-3 rounded-lg border border-sky-800/40">
-                                <span class="text-[11px] text-sky-300 font-semibold block">Normal Liver (D_nl)</span>
-                                <span id="pm-res-normal-dose" class="text-2xl font-bold text-white">40.0</span>
-                                <span class="text-xs text-sky-400"> Gy</span>
+                            <div class="bg-sky-950/60 p-2 sm:p-3 rounded-lg border border-sky-800/40">
+                                <span class="text-[10px] sm:text-[11px] text-sky-300 font-semibold block truncate">Normal Liver (D_nl)</span>
+                                <span id="pm-res-normal-dose" class="text-lg sm:text-2xl font-bold text-white">40.0</span>
+                                <span class="text-[10px] sm:text-xs text-sky-400"> Gy</span>
                             </div>
-                            <div class="bg-sky-950/60 p-3 rounded-lg border border-sky-800/40">
-                                <span class="text-[11px] text-sky-300 font-semibold block">Lung Dose (D_lung)</span>
-                                <span id="pm-res-lung-dose" class="text-2xl font-bold text-white">4.6</span>
-                                <span class="text-xs text-sky-400"> Gy</span>
+                            <div class="bg-sky-950/60 p-2 sm:p-3 rounded-lg border border-sky-800/40">
+                                <span class="text-[10px] sm:text-[11px] text-sky-300 font-semibold block truncate">Lung Dose (D_lung)</span>
+                                <span id="pm-res-lung-dose" class="text-lg sm:text-2xl font-bold text-white">4.6</span>
+                                <span class="text-[10px] sm:text-xs text-sky-400"> Gy</span>
                             </div>
                         </div>
                     </div>
 
                     <!-- Dose Comparison Bar Chart -->
-                    <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+                    <div class="bg-white p-4 sm:p-6 rounded-xl border border-slate-200 shadow-sm">
                         <h3 class="text-xs font-bold text-slate-700 uppercase tracking-wider mb-4">Absorbed Dose Comparison vs Safety Limits</h3>
-                        <div class="h-56">
+                        <div class="h-48 sm:h-56">
                             <canvas id="partitionChart"></canvas>
                         </div>
                     </div>
 
                     <!-- Compartment Details Table -->
-                    <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+                    <div class="bg-white p-4 sm:p-5 rounded-xl border border-slate-200 shadow-sm">
                         <h3 class="text-xs font-bold text-slate-700 uppercase tracking-wider mb-3">Compartment Breakdown Table</h3>
-                        <table class="w-full text-xs text-left">
-                            <thead class="bg-slate-50 text-slate-500 uppercase">
-                                <tr>
-                                    <th class="p-2.5">Compartment</th>
-                                    <th class="p-2.5">Volume (cc)</th>
-                                    <th class="p-2.5">Mass (kg)</th>
-                                    <th class="p-2.5">Activity (GBq)</th>
-                                    <th class="p-2.5 font-bold">Absorbed Dose (Gy)</th>
-                                </tr>
-                            </thead>
-                            <tbody class="divide-y divide-slate-100">
-                                <tr>
-                                    <td class="p-2.5 font-semibold text-slate-800">Tumor Target</td>
-                                    <td class="p-2.5" id="pm-tab-tumor-vol">250.0</td>
-                                    <td class="p-2.5" id="pm-tab-tumor-mass">0.2625</td>
-                                    <td class="p-2.5" id="pm-tab-tumor-act">0.740</td>
-                                    <td class="p-2.5 font-bold text-sky-700" id="pm-tab-tumor-dose">140.0 Gy</td>
-                                </tr>
-                                <tr>
-                                    <td class="p-2.5 font-semibold text-slate-800">Normal Liver Parenchyma</td>
-                                    <td class="p-2.5" id="pm-tab-normal-vol">1200.0</td>
-                                    <td class="p-2.5" id="pm-tab-normal-mass">1.2600</td>
-                                    <td class="p-2.5" id="pm-tab-normal-act">1.015</td>
-                                    <td class="p-2.5 font-bold text-emerald-700" id="pm-tab-normal-dose">40.0 Gy</td>
-                                </tr>
-                                <tr>
-                                    <td class="p-2.5 font-semibold text-slate-800">Lungs (Shunt)</td>
-                                    <td class="p-2.5">-</td>
-                                    <td class="p-2.5">1.0000</td>
-                                    <td class="p-2.5" id="pm-tab-lung-act">0.092</td>
-                                    <td class="p-2.5 font-bold text-amber-700" id="pm-tab-lung-dose">4.6 Gy</td>
-                                </tr>
-                            </tbody>
-                        </table>
+                        <div class="overflow-x-auto -mx-1 sm:mx-0">
+                            <table class="w-full text-xs text-left min-w-[460px]">
+                                <thead class="bg-slate-50 text-slate-500 uppercase">
+                                    <tr>
+                                        <th class="p-2.5">Compartment</th>
+                                        <th class="p-2.5">Volume (cc)</th>
+                                        <th class="p-2.5">Mass (kg)</th>
+                                        <th class="p-2.5">Activity (GBq)</th>
+                                        <th class="p-2.5 font-bold">Absorbed Dose (Gy)</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-slate-100">
+                                    <tr>
+                                        <td class="p-2.5 font-semibold text-slate-800">Tumor Target</td>
+                                        <td class="p-2.5" id="pm-tab-tumor-vol">250.0</td>
+                                        <td class="p-2.5" id="pm-tab-tumor-mass">0.2625</td>
+                                        <td class="p-2.5" id="pm-tab-tumor-act">0.740</td>
+                                        <td class="p-2.5 font-bold text-sky-700" id="pm-tab-tumor-dose">140.0 Gy</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="p-2.5 font-semibold text-slate-800">Normal Liver Parenchyma</td>
+                                        <td class="p-2.5" id="pm-tab-normal-vol">1200.0</td>
+                                        <td class="p-2.5" id="pm-tab-normal-mass">1.2600</td>
+                                        <td class="p-2.5" id="pm-tab-normal-act">1.015</td>
+                                        <td class="p-2.5 font-bold text-emerald-700" id="pm-tab-normal-dose">40.0 Gy</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="p-2.5 font-semibold text-slate-800">Lungs (Shunt)</td>
+                                        <td class="p-2.5">-</td>
+                                        <td class="p-2.5">1.0000</td>
+                                        <td class="p-2.5" id="pm-tab-lung-act">0.092</td>
+                                        <td class="p-2.5 font-bold text-amber-700" id="pm-tab-lung-dose">4.6 Gy</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -253,8 +263,8 @@
         <!-- TAB 2: MIRD SINGLE-COMPARTMENT MODEL -->
         <!-- ======================================================== -->
         <section id="tab-mird" class="tab-content hidden">
-            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
-                <div class="lg:col-span-5 bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-5">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8">
+                <div class="lg:col-span-5 bg-white p-4 sm:p-6 rounded-xl border border-slate-200 shadow-sm space-y-4 sm:space-y-5">
                     <div class="border-b border-slate-100 pb-3">
                         <h2 class="text-base font-bold text-slate-900 flex items-center space-x-2">
                             <i data-lucide="activity" class="w-4 h-4 text-sky-600"></i>
@@ -269,7 +279,7 @@
                         <p class="text-[11px] text-slate-400 mt-0.5">TheraSpheres standard target: 120 Gy (lobar) or 150-200+ Gy (segmentectomy).</p>
                     </div>
 
-                    <div class="grid grid-cols-2 gap-4">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                         <div>
                             <label class="block text-xs font-semibold text-slate-600 mb-1">Target Volume (cc)</label>
                             <input id="mird-vol" type="number" value="1200" class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:outline-none">
@@ -280,7 +290,7 @@
                         </div>
                     </div>
 
-                    <div class="grid grid-cols-2 gap-4">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                         <div>
                             <label class="block text-xs font-semibold text-slate-600 mb-1">Residual Waste %</label>
                             <input id="mird-waste" type="number" value="3.0" step="0.5" class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:outline-none">
@@ -305,30 +315,30 @@
                     </button>
                 </div>
 
-                <div class="lg:col-span-7 space-y-6">
-                    <div class="bg-gradient-to-br from-indigo-900 to-slate-900 text-white p-6 rounded-xl shadow-md">
+                <div class="lg:col-span-7 space-y-5 sm:space-y-6">
+                    <div class="bg-gradient-to-br from-indigo-900 to-slate-900 text-white p-4 sm:p-6 rounded-xl shadow-md">
                         <span class="text-xs uppercase font-bold tracking-wider text-indigo-400">Planned Injected Activity</span>
-                        <div class="flex items-baseline space-x-3 mt-1">
-                            <span id="mird-res-act-gbq" class="text-4xl font-black">3.183</span>
-                            <span class="text-lg text-indigo-300 font-semibold">GBq</span>
+                        <div class="flex flex-wrap items-baseline gap-x-2 sm:gap-x-3 gap-y-0.5 mt-1">
+                            <span id="mird-res-act-gbq" class="text-3xl sm:text-4xl font-black">3.183</span>
+                            <span class="text-base sm:text-lg text-indigo-300 font-semibold">GBq</span>
                             <span class="text-slate-400">/</span>
-                            <span id="mird-res-act-mbq" class="text-lg text-slate-300 font-medium">3,183 MBq</span>
+                            <span id="mird-res-act-mbq" class="text-base sm:text-lg text-slate-300 font-medium">3,183 MBq</span>
                         </div>
 
-                        <div class="grid grid-cols-2 gap-4 mt-6 pt-5 border-t border-indigo-800/60">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 mt-5 pt-4 sm:pt-5 border-t border-indigo-800/60">
                             <div>
                                 <span class="text-xs text-indigo-300 block">Vial Order Activity (with waste):</span>
-                                <span id="mird-res-vial-gbq" class="text-xl font-bold">3.282 GBq</span>
+                                <span id="mird-res-vial-gbq" class="text-lg sm:text-xl font-bold">3.282 GBq</span>
                             </div>
                             <div>
                                 <span class="text-xs text-indigo-300 block">Estimated Lung Absorbed Dose:</span>
-                                <span id="mird-res-lung-dose" class="text-xl font-bold text-emerald-400">7.96 Gy</span>
-                                <span class="text-xs text-slate-400">(Limit &le; 30 Gy)</span>
+                                <span id="mird-res-lung-dose" class="text-lg sm:text-xl font-bold text-emerald-400">7.96 Gy</span>
+                                <span class="text-[11px] sm:text-xs text-slate-400">(Limit &le; 30 Gy)</span>
                             </div>
                         </div>
                     </div>
 
-                    <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-4">
+                    <div class="bg-white p-4 sm:p-6 rounded-xl border border-slate-200 shadow-sm space-y-4">
                         <h3 class="text-xs font-bold text-slate-700 uppercase tracking-wider">Clinical Guidance & TheraSpheres Notes</h3>
                         <ul class="text-xs text-slate-600 space-y-2 list-disc pl-4">
                             <li><strong>Target Mass:</strong> Liver tissue density is assumed at 1.05 g/cm³. Target Mass = (Volume × 1.05) / 1000 kg.</li>
@@ -344,8 +354,8 @@
         <!-- TAB 3: BSA MODEL (SIR-SPHERES) -->
         <!-- ======================================================== -->
         <section id="tab-bsa" class="tab-content hidden">
-            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
-                <div class="lg:col-span-5 bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-5">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8">
+                <div class="lg:col-span-5 bg-white p-4 sm:p-6 rounded-xl border border-slate-200 shadow-sm space-y-4 sm:space-y-5">
                     <div class="border-b border-slate-100 pb-3">
                         <h2 class="text-base font-bold text-slate-900 flex items-center space-x-2">
                             <i data-lucide="user" class="w-4 h-4 text-sky-600"></i>
@@ -354,7 +364,7 @@
                         <p class="text-xs text-slate-500">Empirical model based on patient body surface area & tumor burden.</p>
                     </div>
 
-                    <div class="grid grid-cols-2 gap-4">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                         <div>
                             <label class="block text-xs font-semibold text-slate-600 mb-1">Height (m)</label>
                             <input id="bsa-height" type="number" step="0.01" value="1.75" class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:outline-none">
@@ -365,7 +375,7 @@
                         </div>
                     </div>
 
-                    <div class="grid grid-cols-2 gap-4">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                         <div>
                             <label class="block text-xs font-semibold text-slate-600 mb-1">Target Volume (cc)</label>
                             <input id="bsa-target-vol" type="number" value="1500" class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:outline-none">
@@ -376,7 +386,7 @@
                         </div>
                     </div>
 
-                    <div class="grid grid-cols-2 gap-4">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                         <div>
                             <label class="block text-xs font-semibold text-slate-600 mb-1">Total Liver Volume (cc)</label>
                             <input id="bsa-liver-vol" type="number" value="1500" class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:outline-none">
@@ -398,33 +408,33 @@
                     </button>
                 </div>
 
-                <div class="lg:col-span-7 space-y-6">
-                    <div class="bg-gradient-to-br from-emerald-900 to-slate-900 text-white p-6 rounded-xl shadow-md">
+                <div class="lg:col-span-7 space-y-5 sm:space-y-6">
+                    <div class="bg-gradient-to-br from-emerald-900 to-slate-900 text-white p-4 sm:p-6 rounded-xl shadow-md">
                         <span class="text-xs uppercase font-bold tracking-wider text-emerald-400">Prescribed Injected Activity (SIR-Spheres)</span>
-                        <div class="flex items-baseline space-x-3 mt-1">
-                            <span id="bsa-res-act-gbq" class="text-4xl font-black">1.902</span>
-                            <span class="text-lg text-emerald-300 font-semibold">GBq</span>
+                        <div class="flex flex-wrap items-baseline gap-x-2 sm:gap-x-3 gap-y-0.5 mt-1">
+                            <span id="bsa-res-act-gbq" class="text-3xl sm:text-4xl font-black">1.902</span>
+                            <span class="text-base sm:text-lg text-emerald-300 font-semibold">GBq</span>
                             <span class="text-slate-400">/</span>
-                            <span id="bsa-res-act-mbq" class="text-lg text-slate-300 font-medium">1,902 MBq</span>
+                            <span id="bsa-res-act-mbq" class="text-base sm:text-lg text-slate-300 font-medium">1,902 MBq</span>
                         </div>
 
-                        <div class="grid grid-cols-3 gap-3 mt-6 pt-5 border-t border-emerald-800/60 text-xs">
-                            <div>
-                                <span class="text-emerald-300 block">Patient BSA:</span>
-                                <span id="bsa-res-bsa" class="text-lg font-bold">1.935 m²</span>
+                        <div class="grid grid-cols-3 gap-2 sm:gap-3 mt-5 pt-4 sm:pt-5 border-t border-emerald-800/60 text-xs">
+                            <div class="bg-emerald-950/40 p-2 sm:p-3 rounded-lg border border-emerald-800/40">
+                                <span class="text-emerald-300 block text-[10px] sm:text-xs truncate">Patient BSA:</span>
+                                <span id="bsa-res-bsa" class="text-sm sm:text-lg font-bold">1.935 m²</span>
                             </div>
-                            <div>
-                                <span class="text-emerald-300 block">Tumor Involvement:</span>
-                                <span id="bsa-res-ti" class="text-lg font-bold">16.7%</span>
+                            <div class="bg-emerald-950/40 p-2 sm:p-3 rounded-lg border border-emerald-800/40">
+                                <span class="text-emerald-300 block text-[10px] sm:text-xs truncate">Tumor Burden:</span>
+                                <span id="bsa-res-ti" class="text-sm sm:text-lg font-bold">16.7%</span>
                             </div>
-                            <div>
-                                <span class="text-emerald-300 block">LSF Reduction:</span>
-                                <span id="bsa-res-reduction" class="text-lg font-bold">0% (None)</span>
+                            <div class="bg-emerald-950/40 p-2 sm:p-3 rounded-lg border border-emerald-800/40">
+                                <span class="text-emerald-300 block text-[10px] sm:text-xs truncate">LSF Reduction:</span>
+                                <span id="bsa-res-reduction" class="text-sm sm:text-lg font-bold truncate block">0% (None)</span>
                             </div>
                         </div>
                     </div>
 
-                    <div id="bsa-alert-box" class="p-4 rounded-xl border border-emerald-200 bg-emerald-50 text-emerald-800 text-xs">
+                    <div id="bsa-alert-box" class="p-3.5 sm:p-4 rounded-xl border border-emerald-200 bg-emerald-50 text-emerald-800 text-xs">
                         <strong>Lung Shunt Status:</strong> Normal (&lt; 10%). No dose reduction needed.
                     </div>
                 </div>
@@ -435,8 +445,8 @@
         <!-- TAB 4: LUNG SHUNT FRACTION (2D & 3D) -->
         <!-- ======================================================== -->
         <section id="tab-shunt" class="tab-content hidden">
-            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
-                <div class="lg:col-span-5 bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-5">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8">
+                <div class="lg:col-span-5 bg-white p-4 sm:p-6 rounded-xl border border-slate-200 shadow-sm space-y-4 sm:space-y-5">
                     <div class="border-b border-slate-100 pb-3">
                         <h2 class="text-base font-bold text-slate-900 flex items-center space-x-2">
                             <i data-lucide="wind" class="w-4 h-4 text-sky-600"></i>
@@ -451,8 +461,8 @@
                     </div>
 
                     <!-- Planar Inputs -->
-                    <div id="shunt-planar-inputs" class="space-y-4">
-                        <div class="grid grid-cols-2 gap-4">
+                    <div id="shunt-planar-inputs" class="space-y-3 sm:space-y-4">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                             <div>
                                 <label class="block text-xs font-semibold text-slate-600 mb-1">Lung Anterior Counts</label>
                                 <input id="shunt-lung-ant" type="number" value="7500" class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg">
@@ -462,7 +472,7 @@
                                 <input id="shunt-lung-post" type="number" value="7500" class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg">
                             </div>
                         </div>
-                        <div class="grid grid-cols-2 gap-4">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                             <div>
                                 <label class="block text-xs font-semibold text-slate-600 mb-1">Liver Anterior Counts</label>
                                 <input id="shunt-liver-ant" type="number" value="142500" class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg">
@@ -475,7 +485,7 @@
                     </div>
 
                     <!-- SPECT Inputs -->
-                    <div id="shunt-spect-inputs" class="space-y-4 hidden">
+                    <div id="shunt-spect-inputs" class="space-y-3 sm:space-y-4 hidden">
                         <div>
                             <label class="block text-xs font-semibold text-slate-600 mb-1">Total 3D Lung Volume Counts</label>
                             <input id="shunt-spect-lung" type="number" value="20000" class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg">
@@ -492,15 +502,15 @@
                     </button>
                 </div>
 
-                <div class="lg:col-span-7 space-y-6">
-                    <div class="bg-gradient-to-br from-slate-900 to-sky-950 text-white p-6 rounded-xl shadow-md">
+                <div class="lg:col-span-7 space-y-5 sm:space-y-6">
+                    <div class="bg-gradient-to-br from-slate-900 to-sky-950 text-white p-4 sm:p-6 rounded-xl shadow-md">
                         <span class="text-xs uppercase font-bold tracking-wider text-sky-400">Calculated Lung Shunt Fraction</span>
                         <div class="flex items-baseline space-x-3 mt-1">
-                            <span id="shunt-res-lsf" class="text-5xl font-black">5.00</span>
+                            <span id="shunt-res-lsf" class="text-4xl sm:text-5xl font-black">5.00</span>
                             <span class="text-2xl text-sky-300 font-bold">%</span>
                         </div>
 
-                        <div class="mt-6 pt-5 border-t border-slate-800 text-xs space-y-2">
+                        <div class="mt-5 pt-4 sm:mt-6 sm:pt-5 border-t border-slate-800 text-xs space-y-2">
                             <div class="flex justify-between">
                                 <span class="text-slate-400">Clinical Shunt Tier:</span>
                                 <span id="shunt-res-tier" class="font-bold text-emerald-400">Normal (&lt; 10%)</span>
@@ -512,7 +522,7 @@
                         </div>
 
                         <div class="mt-4 pt-3 border-t border-slate-800">
-                            <button onclick="applyShuntToAllModels()" class="w-full bg-sky-600 hover:bg-sky-500 text-white font-semibold py-2 rounded-lg text-xs transition flex items-center justify-center space-x-2 shadow">
+                            <button onclick="applyShuntToAllModels()" class="w-full bg-sky-600 hover:bg-sky-500 text-white font-semibold py-2 px-2.5 rounded-lg text-xs transition flex items-center justify-center space-x-1.5 shadow">
                                 <i data-lucide="share-2" class="w-3.5 h-3.5"></i>
                                 <span>Apply Measured LSF to All Planning Models</span>
                             </button>
@@ -520,7 +530,7 @@
                         </div>
                     </div>
 
-                    <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-3">
+                    <div class="bg-white p-4 sm:p-6 rounded-xl border border-slate-200 shadow-sm space-y-3">
                         <h3 class="text-xs font-bold text-slate-700 uppercase tracking-wider">Clinical Guidance Protocol (EANM/CIRSE)</h3>
                         <div class="space-y-2 text-xs">
                             <div class="p-2.5 rounded-lg bg-emerald-50 text-emerald-900 border border-emerald-200">
@@ -545,8 +555,8 @@
         <!-- TAB 5: VOXEL LDM & DVH EXPLORER -->
         <!-- ======================================================== -->
         <section id="tab-voxel" class="tab-content hidden">
-            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
-                <div class="lg:col-span-4 bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-5">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8">
+                <div class="lg:col-span-4 bg-white p-4 sm:p-6 rounded-xl border border-slate-200 shadow-sm space-y-4 sm:space-y-5">
                     <div class="border-b border-slate-100 pb-3">
                         <h2 class="text-base font-bold text-slate-900 flex items-center space-x-2">
                             <i data-lucide="bar-chart-2" class="w-4 h-4 text-sky-600"></i>
@@ -560,7 +570,7 @@
                         <input id="voxel-act" type="number" step="0.1" value="1.8" class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg">
                     </div>
 
-                    <div class="grid grid-cols-2 gap-4">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                         <div>
                             <label class="block text-xs font-semibold text-slate-600 mb-1">Residual Waste %</label>
                             <input id="voxel-waste" type="number" value="3.0" step="0.5" class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg">
@@ -582,40 +592,42 @@
                     </button>
                 </div>
 
-                <div class="lg:col-span-8 space-y-6">
+                <div class="lg:col-span-8 space-y-5 sm:space-y-6">
                     <!-- DVH Chart Card -->
-                    <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
-                        <div class="flex justify-between items-center mb-4">
-                            <h3 class="text-sm font-bold text-slate-800">Cumulative Dose-Volume Histogram (DVH)</h3>
-                            <div class="flex items-center space-x-4 text-xs font-semibold">
+                    <div class="bg-white p-4 sm:p-6 rounded-xl border border-slate-200 shadow-sm">
+                        <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 mb-3 sm:mb-4">
+                            <h3 class="text-xs sm:text-sm font-bold text-slate-800">Cumulative Dose-Volume Histogram (DVH)</h3>
+                            <div class="flex items-center space-x-3 sm:space-x-4 text-[11px] sm:text-xs font-semibold">
                                 <span class="flex items-center space-x-1"><span class="w-3 h-3 rounded-full bg-sky-600 inline-block"></span> <span>Tumor Target</span></span>
                                 <span class="flex items-center space-x-1"><span class="w-3 h-3 rounded-full bg-emerald-600 inline-block"></span> <span>Normal Liver</span></span>
                             </div>
                         </div>
-                        <div class="h-64">
+                        <div class="h-52 sm:h-64">
                             <canvas id="dvhChart"></canvas>
                         </div>
                     </div>
 
                     <!-- DVH Metrics Table -->
-                    <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+                    <div class="bg-white p-4 sm:p-5 rounded-xl border border-slate-200 shadow-sm">
                         <h3 class="text-xs font-bold text-slate-700 uppercase tracking-wider mb-3">Voxel Dose-Volume Statistics (Standard Clinical Metrics)</h3>
-                        <table class="w-full text-xs text-left">
-                            <thead class="bg-slate-50 text-slate-500 uppercase">
-                                <tr>
-                                    <th class="p-2.5">Region</th>
-                                    <th class="p-2.5">Mean Dose</th>
-                                    <th class="p-2.5">Max Dose</th>
-                                    <th class="p-2.5">D50 (Median)</th>
-                                    <th class="p-2.5">D70</th>
-                                    <th class="p-2.5">D90</th>
-                                    <th class="p-2.5">V100 (% &ge; 100Gy)</th>
-                                </tr>
-                            </thead>
-                            <tbody class="divide-y divide-slate-100" id="voxel-stats-tbody">
-                                <!-- Populated dynamically -->
-                            </tbody>
-                        </table>
+                        <div class="overflow-x-auto -mx-1 sm:mx-0">
+                            <table class="w-full text-xs text-left min-w-[540px]">
+                                <thead class="bg-slate-50 text-slate-500 uppercase">
+                                    <tr>
+                                        <th class="p-2.5">Region</th>
+                                        <th class="p-2.5">Mean Dose</th>
+                                        <th class="p-2.5">Max Dose</th>
+                                        <th class="p-2.5">D50 (Median)</th>
+                                        <th class="p-2.5">D70</th>
+                                        <th class="p-2.5">D90</th>
+                                        <th class="p-2.5">V100 (% &ge; 100Gy)</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-slate-100" id="voxel-stats-tbody">
+                                    <!-- Populated dynamically -->
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -625,25 +637,25 @@
         <!-- TAB 6: CLINICAL REPORT PREVIEW & EXPORT -->
         <!-- ======================================================== -->
         <section id="tab-report" class="tab-content hidden">
-            <div class="max-w-4xl mx-auto space-y-6">
-                <div class="flex justify-between items-center bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+            <div class="max-w-4xl mx-auto space-y-4 sm:space-y-6">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
                     <div>
                         <h2 class="text-base font-bold text-slate-900">Clinical Structured Treatment Report</h2>
                         <p class="text-xs text-slate-500">Standard Post-Treatment Clinical Report format (DICOM SR / Printable HTML).</p>
                     </div>
-                    <div class="flex space-x-3">
-                        <button onclick="downloadReportHTML()" class="bg-slate-800 hover:bg-slate-900 text-white text-xs font-semibold px-4 py-2 rounded-lg transition flex items-center space-x-1.5">
+                    <div class="flex w-full sm:w-auto space-x-2 sm:space-x-3">
+                        <button onclick="downloadReportHTML()" class="flex-1 sm:flex-none justify-center bg-slate-800 hover:bg-slate-900 text-white text-xs font-semibold px-3 sm:px-4 py-2 rounded-lg transition flex items-center space-x-1.5">
                             <i data-lucide="download" class="w-4 h-4"></i>
                             <span>Save HTML</span>
                         </button>
-                        <button onclick="printReport()" class="bg-sky-600 hover:bg-sky-700 text-white text-xs font-semibold px-4 py-2 rounded-lg transition flex items-center space-x-1.5 shadow">
+                        <button onclick="printReport()" class="flex-1 sm:flex-none justify-center bg-sky-600 hover:bg-sky-700 text-white text-xs font-semibold px-3 sm:px-4 py-2 rounded-lg transition flex items-center space-x-1.5 shadow">
                             <i data-lucide="printer" class="w-4 h-4"></i>
                             <span>Print / PDF</span>
                         </button>
                     </div>
                 </div>
 
-                <div class="bg-white p-8 rounded-xl border border-slate-200 shadow-sm" id="report-container">
+                <div class="bg-white p-4 sm:p-8 rounded-xl border border-slate-200 shadow-sm overflow-x-auto" id="report-container">
                     <!-- Report HTML injected dynamically -->
                 </div>
             </div>
@@ -653,9 +665,9 @@
         <!-- TAB 7: FORMULAS & DOCUMENTATION -->
         <!-- ======================================================== -->
         <section id="tab-reference" class="tab-content hidden">
-            <div class="max-w-4xl mx-auto bg-white p-8 rounded-xl border border-slate-200 shadow-sm space-y-8">
+            <div class="max-w-4xl mx-auto bg-white p-4 sm:p-8 rounded-xl border border-slate-200 shadow-sm space-y-6 sm:space-y-8">
                 <div>
-                    <h2 class="text-xl font-bold text-slate-900">Mathematical Formulations & Algorithmic Specifications</h2>
+                    <h2 class="text-lg sm:text-xl font-bold text-slate-900">Mathematical Formulations & Algorithmic Specifications</h2>
                     <p class="text-xs text-slate-500 mt-1">Standardized equations based on international consensus guidelines and official product monographs.</p>
                 </div>
 
@@ -663,7 +675,7 @@
                 <div class="space-y-3 border-t border-slate-100 pt-5">
                     <h3 class="text-base font-bold text-sky-800">1. Partition Multi-Compartment Model</h3>
                     <p class="text-xs text-slate-600">The Partition Model accounts for differential microsphere trapping in hypervascular tumors versus normal liver parenchyma and lungs.</p>
-                    <div class="bg-slate-50 p-4 rounded-lg font-mono text-xs text-slate-800 space-y-2 border border-slate-200">
+                    <div class="bg-slate-50 p-3 sm:p-4 rounded-lg font-mono text-xs text-slate-800 space-y-2 border border-slate-200 overflow-x-auto">
                         <div><strong>Tumor Involvement (%):</strong> TI = [ Volume_tumor / (Volume_tumor + Volume_normal) ] &times; 100</div>
                         <div><strong>Tumor-to-Normal Ratio:</strong> TNR = ( TotalCounts_tumor / Mass_tumor ) / ( TotalCounts_normal / Mass_normal )</div>
                         <div><strong>Absorbed Dose:</strong> Dose_tissue = ( 49,670 &times; Activity_tissue ) / Mass_tissue [Gy]</div>
@@ -677,7 +689,7 @@
                 <div class="space-y-3 border-t border-slate-100 pt-5">
                     <h3 class="text-base font-bold text-indigo-800">2. MIRD Single-Compartment Model (TheraSpheres)</h3>
                     <p class="text-xs text-slate-600">Assumes uniform spatial distribution of microspheres throughout the targeted anatomical volume.</p>
-                    <div class="bg-slate-50 p-4 rounded-lg font-mono text-xs text-slate-800 space-y-2 border border-slate-200">
+                    <div class="bg-slate-50 p-3 sm:p-4 rounded-lg font-mono text-xs text-slate-800 space-y-2 border border-slate-200 overflow-x-auto">
                         <div><strong>Target Mass (kg):</strong> Mass_target = Volume_target &times; 1.05 / 1000</div>
                         <div><strong>Calculated Activity (GBq):</strong> Activity = ( Dose_target &times; Mass_target ) / [ 50 &times; ( 1 - LSF ) ]</div>
                         <div><strong>Absorbed Lung Dose (Gy):</strong> Dose_lung = Activity &times; LSF &times; 50 / Mass_lung</div>
@@ -688,7 +700,7 @@
                 <div class="space-y-3 border-t border-slate-100 pt-5">
                     <h3 class="text-base font-bold text-emerald-800">3. BSA Model (SIR-Spheres)</h3>
                     <p class="text-xs text-slate-600">Empirical relationship matching patient body habitus to safe liver dose tolerance.</p>
-                    <div class="bg-slate-50 p-4 rounded-lg font-mono text-xs text-slate-800 space-y-2 border border-slate-200">
+                    <div class="bg-slate-50 p-3 sm:p-4 rounded-lg font-mono text-xs text-slate-800 space-y-2 border border-slate-200 overflow-x-auto">
                         <div><strong>Body Surface Area:</strong> BSA [m²] = 0.20247 &times; ( Height [m] ^ 0.725 ) &times; ( Weight [kg] ^ 0.425 )</div>
                         <div><strong>Target Activity (GBq):</strong> Activity = [ BSA - 0.2 + ( Volume_tumor / Volume_target ) ] &times; ( Volume_target / Volume_liver )</div>
                         <div><strong>LSF Reduction:</strong> LSF &lt; 10% (0%), 10-15% (20% reduction), 15-20% (40% reduction), &gt;20% (Contraindicated).</div>
@@ -711,7 +723,6 @@
                         <li><strong>Boston Scientific.</strong> <em>TheraSphere (Yttrium-90 Glass Microspheres) User Manual & Package Insert.</em> Boston Scientific Corporation.</li>
                         <li><strong>Du Bois D, Du Bois EF.</strong> <em>A formula to estimate the approximate surface area if height and weight be known.</em> Arch Intern Med. 1916;17(6):863-871.</li>
                     </ol>
-                </div>
                 </div>
             </div>
         </section>
@@ -1010,19 +1021,19 @@
             const today = new Date().toISOString().slice(0, 10);
             return `
             <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: #1e293b; max-width: 800px; margin: 0 auto; line-height: 1.5;">
-                <div style="border-bottom: 3px solid #0284c7; padding-bottom: 12px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: flex-end;">
+                <div style="border-bottom: 3px solid #0284c7; padding-bottom: 12px; margin-bottom: 20px; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; gap: 10px;">
                     <div>
-                        <h1 style="font-size: 20px; font-weight: 800; color: #0f172a; margin: 0;">Y-90 Radioembolization (SIRT / TARE) Clinical Dosimetry Report</h1>
+                        <h1 style="font-size: 18px; font-weight: 800; color: #0f172a; margin: 0; line-height: 1.3;">Y-90 Radioembolization (SIRT / TARE) Clinical Dosimetry Report</h1>
                         <p style="font-size: 11px; color: #64748b; margin: 4px 0 0 0;">Open Y-90 Dosimetry Suite | Standardized Clinical Reporting</p>
                     </div>
-                    <div style="text-align: right; font-size: 11px; color: #64748b;">
+                    <div style="text-align: right; font-size: 11px; color: #64748b; min-width: 150px;">
                         <div><strong>Report Date:</strong> ${today}</div>
                         <div><strong>Engine:</strong> Open Y-90 v1.0.0 (Client/Web)</div>
                     </div>
                 </div>
 
-                <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px 16px; margin-bottom: 20px; font-size: 12px;">
-                    <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px;">
+                <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px 14px; margin-bottom: 20px; font-size: 12px;">
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px;">
                         <div><span style="color: #64748b;">Patient:</span> <strong>Anonymous Subject</strong></div>
                         <div><span style="color: #64748b;">Subject ID:</span> <strong>Y90-SUBJ-001</strong></div>
                         <div><span style="color: #64748b;">Age/Sex:</span> <strong>64 / M</strong></div>
@@ -1032,15 +1043,17 @@
 
                 <div style="margin-bottom: 20px;">
                     <h3 style="font-size: 13px; font-weight: 700; color: #0369a1; text-transform: uppercase; margin-bottom: 8px; border-bottom: 1px solid #e0f2fe; padding-bottom: 4px;">Dosimetry Planning Summary</h3>
-                    <table style="width: 100%; border-collapse: collapse; font-size: 12px; text-align: left;">
-                        <tr style="border-bottom: 1px solid #f1f5f9;"><td style="padding: 6px; color: #64748b;">Planning Model</td><td style="padding: 6px; font-weight: 600;">Partition Multi-Compartment Model</td></tr>
-                        <tr style="border-bottom: 1px solid #f1f5f9;"><td style="padding: 6px; color: #64748b;">Microsphere Type</td><td style="padding: 6px; font-weight: 600;">SIR-Spheres (Resin Microspheres)</td></tr>
-                        <tr style="border-bottom: 1px solid #f1f5f9;"><td style="padding: 6px; color: #64748b;">Administered Activity</td><td style="padding: 6px; font-weight: 600;">1.847 GBq (1,847 MBq)</td></tr>
-                        <tr style="border-bottom: 1px solid #f1f5f9;"><td style="padding: 6px; color: #64748b;">Lung Shunt Fraction</td><td style="padding: 6px; font-weight: 600;">5.0% (Safe, &lt; 10%)</td></tr>
-                        <tr style="border-bottom: 1px solid #f1f5f9;"><td style="padding: 6px; color: #64748b;">Tumor Absorbed Dose</td><td style="padding: 6px; font-weight: 600; color: #0284c7;">140.0 Gy</td></tr>
-                        <tr style="border-bottom: 1px solid #f1f5f9;"><td style="padding: 6px; color: #64748b;">Normal Liver Absorbed Dose</td><td style="padding: 6px; font-weight: 600; color: #16a34a;">40.0 Gy (&le; 45 Gy Limit)</td></tr>
-                        <tr style="border-bottom: 1px solid #f1f5f9;"><td style="padding: 6px; color: #64748b;">Estimated Lung Absorbed Dose</td><td style="padding: 6px; font-weight: 600; color: #d97706;">4.6 Gy (&lt; 30 Gy Limit)</td></tr>
-                    </table>
+                    <div style="overflow-x: auto; -webkit-overflow-scrolling: touch;">
+                        <table style="width: 100%; min-width: 280px; border-collapse: collapse; font-size: 12px; text-align: left;">
+                            <tr style="border-bottom: 1px solid #f1f5f9;"><td style="padding: 6px; color: #64748b;">Planning Model</td><td style="padding: 6px; font-weight: 600;">Partition Multi-Compartment Model</td></tr>
+                            <tr style="border-bottom: 1px solid #f1f5f9;"><td style="padding: 6px; color: #64748b;">Microsphere Type</td><td style="padding: 6px; font-weight: 600;">SIR-Spheres (Resin Microspheres)</td></tr>
+                            <tr style="border-bottom: 1px solid #f1f5f9;"><td style="padding: 6px; color: #64748b;">Administered Activity</td><td style="padding: 6px; font-weight: 600;">1.847 GBq (1,847 MBq)</td></tr>
+                            <tr style="border-bottom: 1px solid #f1f5f9;"><td style="padding: 6px; color: #64748b;">Lung Shunt Fraction</td><td style="padding: 6px; font-weight: 600;">5.0% (Safe, &lt; 10%)</td></tr>
+                            <tr style="border-bottom: 1px solid #f1f5f9;"><td style="padding: 6px; color: #64748b;">Tumor Absorbed Dose</td><td style="padding: 6px; font-weight: 600; color: #0284c7;">140.0 Gy</td></tr>
+                            <tr style="border-bottom: 1px solid #f1f5f9;"><td style="padding: 6px; color: #64748b;">Normal Liver Absorbed Dose</td><td style="padding: 6px; font-weight: 600; color: #16a34a;">40.0 Gy (&le; 45 Gy Limit)</td></tr>
+                            <tr style="border-bottom: 1px solid #f1f5f9;"><td style="padding: 6px; color: #64748b;">Estimated Lung Absorbed Dose</td><td style="padding: 6px; font-weight: 600; color: #d97706;">4.6 Gy (&lt; 30 Gy Limit)</td></tr>
+                        </table>
+                    </div>
                 </div>
 
                 <div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; padding: 12px; font-size: 11px; color: #166534; margin-bottom: 20px;">
