@@ -205,12 +205,16 @@ python3 -m unittest discover -s tests -v
 ## 📚 References & Scientific Literature
 
 1. **Chiesa C, Maccauro M, Romito R, et al.** *Need, feasibility and convenience of dosimetric treatment planning in liver selective internal radiation therapy with $^{90}\text{Y}$ microspheres: the EANM guidelines.* Eur J Nucl Med Mol Imaging. 2021;48(11):3706-3730. doi:10.1007/s00259-021-05441-w.
-2. **Salem R, Thurston KG.** *Radioembolization with $^{90}\text{Yttrium}$ microspheres: a state-of-the-art review.* J Vasc Interv Radiol. 2006;17(8):1251-1278. doi:10.1097/01.rvi.0000232023.75372.40.
-3. **Gulec SA, Mesoloras G, Dezarn WA, McNeillie P, Kennedy AS.** *Dosimetry for $^{90}\text{Y}$ microsphere therapy with visual and quantitative assessment of target tissue partitioning.* J Nucl Med. 2006;47(11):1858-1865.
-4. **Ho S, Lau WY, Leung TW, et al.** *Partition model for estimating radiation doses from yttrium-90 microspheres in treating hepatic tumours.* Eur J Nucl Med. 1996;23(8):947-952. doi:10.1007/bf01084369.
-5. **Sirtex Medical.** *SIR-Spheres (Yttrium-90 Microspheres) Product Monograph & Package Insert.* Sirtex Medical Limited.
-6. **Boston Scientific.** *TheraSphere (Yttrium-90 Glass Microspheres) User Manual & Package Insert.* Boston Scientific Corporation.
-7. **Du Bois D, Du Bois EF.** *A formula to estimate the approximate surface area if height and weight be known.* Arch Intern Med. 1916;17(6):863-871.
+2. **Garin E, Tselikas L, Guiu B, et al.** *Personalised versus standard dosimetry approach of selective internal radiation therapy in patients with locally advanced hepatocellular carcinoma (DOSISPHERE-01): a randomised, multicentre, open-label phase 2 trial.* Lancet Gastroenterol Hepatol. 2021;6(1):17-29. doi:10.1016/S2468-1253(20)30290-9.
+3. **Salem R, Johnson GE, Kim E, et al.** *Yttrium-90 Radioembolization for the Treatment of Solitary, Unresectable HCC: The LEGACY Study.* Hepatology. 2021;74(5):2342-2352. doi:10.1002/hep.31819.
+4. **Helmberger T, Golfieri R, Pech M, et al.** *Clinical Practice Guideline on Transarterial Radioembolisation (TARE) in Hepatic Malignancies.* Cardiovasc Intervent Radiol. 2021;44(7):1009-1022. doi:10.1007/s00270-021-02830-7.
+5. **Kao YH, Tan AE, Burgmans MC, et al.** *Yttrium-90 radioembolization dosimetry: a review of the state-of-the-art and practical implementation.* Clin Transl Imaging. 2022;10:397-411. doi:10.1007/s40336-022-00497-6.
+6. **Salem R, Thurston KG.** *Radioembolization with $^{90}\text{Yttrium}$ microspheres: a state-of-the-art review.* J Vasc Interv Radiol. 2006;17(8):1251-1278. doi:10.1097/01.rvi.0000232023.75372.40.
+7. **Gulec SA, Mesoloras G, Dezarn WA, McNeillie P, Kennedy AS.** *Dosimetry for $^{90}\text{Y}$ microsphere therapy with visual and quantitative assessment of target tissue partitioning.* J Nucl Med. 2006;47(11):1858-1865.
+8. **Ho S, Lau WY, Leung TW, et al.** *Partition model for estimating radiation doses from yttrium-90 microspheres in treating hepatic tumours.* Eur J Nucl Med. 1996;23(8):947-952. doi:10.1007/bf01084369.
+9. **Sirtex Medical.** *SIR-Spheres (Yttrium-90 Microspheres) Product Monograph & Package Insert.* Sirtex Medical Limited.
+10. **Boston Scientific.** *TheraSphere (Yttrium-90 Glass Microspheres) User Manual & Package Insert.* Boston Scientific Corporation.
+11. **Du Bois D, Du Bois EF.** *A formula to estimate the approximate surface area if height and weight be known.* Arch Intern Med. 1916;17(6):863-871.
 
 ---
 
