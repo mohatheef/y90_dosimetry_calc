@@ -102,7 +102,7 @@ You can use the interactive dosimetry suite directly in your browser with **no i
 👉 **[https://mohatheef.github.io/y90_dosimetry_calc/](https://mohatheef.github.io/y90_dosimetry_calc/)**
 
 * **100% Free & Permanent**: Deployed via GitHub Pages from the `docs/` directory.
-* **Privacy-First (Zero Data Transfer)**: All clinical dosimetry models (Partition, MIRD, BSA, LSF, and Voxel LDM) execute entirely inside your local browser via client-side JavaScript. No patient parameters or imaging metrics ever leave your machine.
+* **Privacy-First (Zero Data Transfer)**: All clinical dosimetry models (Partition, MIRD, BSA, LSF, and Voxel LDM) execute entirely inside your local browser via client-side JavaScript. No patient parameters or imaging metrics ever leave in machine.
 * **Dual Engine Architecture**: Automatically connects to the local Python REST backend when running locally, or falls back to the high-precision in-browser engine when served statically.
 
 ---
