@@ -184,9 +184,15 @@ class Y90RequestHandler(SimpleHTTPRequestHandler):
                     liver_radius_voxels=float(payload.get("liver_radius", 9.0)),
                     tumor_to_normal_count_ratio=tnr
                 )
+                # Scale voxel volume to represent standard adult liver (~1400 cc)
+                target_liver_cc = 1400.0
+                n_liver_voxels = max(len(phantom.get("Normal Liver", [])), 1)
+                voxel_cc = target_liver_cc / n_liver_voxels
+                voxel_dim_mm = (voxel_cc * 1000.0) ** (1.0 / 3.0)
+
                 res = calculate_voxel_ldm_dosimetry(
                     voxel_counts=phantom,
-                    voxel_size_mm=(3.0, 3.0, 3.0),
+                    voxel_size_mm=(voxel_dim_mm, voxel_dim_mm, voxel_dim_mm),
                     injected_activity_gbq=float(payload.get("injected_activity_gbq", 1.8)),
                     residual_waste_pct=float(payload.get("residual_waste_pct", 3.0)),
                     lung_shunt_pct=float(payload.get("lung_shunt_pct", 5.0))

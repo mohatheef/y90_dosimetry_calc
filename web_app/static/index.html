@@ -925,10 +925,14 @@
             const net_gbq = payload.injected_activity_gbq * (1.0 - (payload.residual_waste_pct || 0) / 100.0);
             const liver_gbq = net_gbq * (1.0 - (payload.lung_shunt_pct || 0) / 100.0);
 
+            // Scale voxel volume to represent standard adult liver (~1400 cc)
+            const target_liver_cc = 1400.0;
+            const n_liver_voxels = Math.max(normal_counts.length, 1);
+            const voxel_vol_cc = target_liver_cc / n_liver_voxels;
+            const voxel_mass_g = voxel_vol_cc * 1.05;
+
             const total_counts = tumor_counts.reduce((a,b)=>a+b, 0) + normal_counts.reduce((a,b)=>a+b, 0);
             const calib_factor = liver_gbq / Math.max(total_counts, 1.0);
-            const voxel_vol_cc = (3.0 * 3.0 * 3.0) / 1000.0;
-            const voxel_mass_g = voxel_vol_cc * 1.05;
             const dose_multiplier = (calib_factor * 49670.0) / voxel_mass_g;
 
             function analyzeRegion(counts) {
@@ -982,7 +986,7 @@
                         <p style="font-size: 11px; color: #64748b; margin: 4px 0 0 0;">Open Y-90 Dosimetry Suite | Standardized Clinical Reporting</p>
                     </div>
                     <div style="text-align: right; font-size: 11px; color: #64748b;">
-                        <div><strong>Report Date:</strong> \${today}</div>
+                        <div><strong>Report Date:</strong> ${today}</div>
                         <div><strong>Engine:</strong> Open Y-90 v1.0.0 (Client/Web)</div>
                     </div>
                 </div>
@@ -1142,7 +1146,7 @@
                 alertBox.innerHTML = "<strong>CRITICAL ALERT:</strong> Shunt &gt; 20%. Administration is contraindicated.";
             } else {
                 alertBox.className = "p-4 rounded-xl border border-amber-200 bg-amber-50 text-amber-800 text-xs";
-                alertBox.innerHTML = `<strong>Dose Reduction Applied:</strong> \${data.lsf_reduction_pct}% reduction due to elevated shunt fraction.`;
+                alertBox.innerHTML = `<strong>Dose Reduction Applied:</strong> ${data.lsf_reduction_pct}% reduction due to elevated shunt fraction.`;
             }
         }
 
@@ -1186,13 +1190,13 @@
             for (let rName in data.regions) {
                 const s = data.regions[rName];
                 const row = `<tr>
-                    <td class="p-2.5 font-bold \${rName === 'Tumor' ? 'text-sky-700' : 'text-emerald-700'}">\${rName}</td>
-                    <td class="p-2.5 font-semibold">\${s.mean_dose_gy.toFixed(1)} Gy</td>
-                    <td class="p-2.5">\${s.max_dose_gy.toFixed(1)} Gy</td>
-                    <td class="p-2.5">\${s.d50_gy.toFixed(1)} Gy</td>
-                    <td class="p-2.5">\${s.d70_gy.toFixed(1)} Gy</td>
-                    <td class="p-2.5">\${s.d90_gy.toFixed(1)} Gy</td>
-                    <td class="p-2.5 font-semibold">\${s.v100_pct.toFixed(1)}%</td>
+                    <td class="p-2.5 font-bold ${rName === 'Tumor' ? 'text-sky-700' : 'text-emerald-700'}">${rName}</td>
+                    <td class="p-2.5 font-semibold">${s.mean_dose_gy.toFixed(1)} Gy</td>
+                    <td class="p-2.5">${s.max_dose_gy.toFixed(1)} Gy</td>
+                    <td class="p-2.5">${s.d50_gy.toFixed(1)} Gy</td>
+                    <td class="p-2.5">${s.d70_gy.toFixed(1)} Gy</td>
+                    <td class="p-2.5">${s.d90_gy.toFixed(1)} Gy</td>
+                    <td class="p-2.5 font-semibold">${s.v100_pct.toFixed(1)}%</td>
                 </tr>`;
                 tbody.innerHTML += row;
             }
