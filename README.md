@@ -185,6 +185,39 @@ print(f"BSA Prescribed Activity: {res_bsa.prescribed_activity_gbq} GBq")
 
 ---
 
+## 🔬 Clinical Physics & Mathematical Validation
+
+The radioembolization physics and mathematical models implemented in the **Open Y-90 Dosimetry Suite** adhere directly to standard MIRD (Medical Internal Radiation Dose) principles, international consensus guidelines (EANM / CIRSE), and manufacturer product monographs:
+
+### 1. Partition Model (3-Compartment Simultaneous Dosimetry)
+* **Mathematical Foundation:** Accurately solves the simultaneous linear dose equations relating prescribed activity to absorbed doses across Tumor ($D_t$), Normal Liver Parenchyma ($D_{nl}$), and Lungs ($D_{lung}$).
+* **Key Physics Checks:**
+  * Uses the standard $^{90}\text{Y}$ absorbed dose constant ($49.67\text{ Gy}\cdot\text{kg/GBq}$ physical exact; $50.0\text{ Gy}\cdot\text{kg/GBq}$ nominal).
+  * Accurately factors Lung Shunt Fraction (LSF) removing activity upfront: $A_{\text{liver}} = A_0 \times (1 - \text{LSF})$.
+  * Correctly weighs tumor-to-normal uptake ratios (TNR) against respective compartment masses ($M_t$ and $M_{nl}$).
+
+### 2. MIRD Single-Compartment Model (Glass Microspheres / TheraSphere)
+* **Mathematical Foundation:** Standard uniform volume dose planning:
+  $$\text{Activity (GBq)} = \frac{D_{\text{target}} (\text{Gy}) \times M_{\text{target}} (\text{kg})}{50 \times (1 - \text{LSF})}$$
+* **Key Physics Checks:**
+  * Standard liver tissue density conversion applied ($1.05\text{ g/cm}^3$) to convert volume ($\text{cm}^3$) to mass ($\text{kg}$).
+  * Delivery residual waste percentage correctly scales net injected activity to vial-order activity: $A_{\text{vial}} = A_{\text{calculated}} / (1 - \text{Waste\%})$.
+
+### 3. BSA Model (Resin Microspheres / SIR-Spheres)
+* **Mathematical Foundation:** Implements the Du Bois body surface area and tumor-involvement scaling:
+  $$\text{BSA} = 0.20247 \times \text{Height (m)}^{0.725} \times \text{Weight (kg)}^{0.425}$$
+  $$\text{Activity (GBq)} = \left( \text{BSA} - 0.2 + \frac{V_{\text{tumor}}}{V_{\text{target}}} \right) \times \left(\frac{V_{\text{target}}}{V_{\text{liver}}}\right)$$
+* **Key Physics Checks:**
+  * Matches official Sirtex Medical package insert specifications.
+  * Enforces multi-tier LSF dose reduction rules ($<10\%$: 0%, $10\text{--}15\%$: 20%, $15\text{--}20\%$: 40%, $>20\%$: Contraindicated).
+
+### 4. Lung Shunt Fraction (LSF) Workup
+* **Mathematical Foundation:** Dual-method calculation via planar geometric mean ($\sqrt{\text{Ant} \times \text{Post}}$) or volumetric 3D SPECT/CT counts:
+  $$\text{LSF} = \frac{\text{Counts}_{\text{lungs}}}{\text{Counts}_{\text{lungs}} + \text{Counts}_{\text{liver}}}$$
+* **Safety Thresholds:** Accurately screens against single-infusion lung absorbed dose limits ($\le 30\text{ Gy}$) and cumulative lifetime thresholds ($\le 50\text{ Gy}$).
+
+---
+
 ## 🧪 Automated Testing & Validation
 
 The calculation suite includes automated unit tests validating calculations against published worked examples from manufacturer monographs and peer-reviewed literature:

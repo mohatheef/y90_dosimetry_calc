@@ -707,9 +707,21 @@
                     </div>
                 </div>
 
+                <!-- Lung Shunt Fraction -->
+                <div class="space-y-3 border-t border-slate-100 pt-5">
+                    <h3 class="text-base font-bold text-amber-800">4. Lung Shunt Fraction (LSF) Workup</h3>
+                    <p class="text-xs text-slate-600">Planar conjugate-view geometric mean or volumetric 3D SPECT/CT counts with safety threshold screening.</p>
+                    <div class="bg-slate-50 p-3 sm:p-4 rounded-lg font-mono text-xs text-slate-800 space-y-2 border border-slate-200 overflow-x-auto">
+                        <div><strong>2D Planar Geometric Mean:</strong> G_lung = &radic;(Lung_Ant &times; Lung_Post), G_liver = &radic;(Liver_Ant &times; Liver_Post)</div>
+                        <div><strong>Planar LSF (%):</strong> LSF = [ G_lung / (G_lung + G_liver) ] &times; 100</div>
+                        <div><strong>3D SPECT/CT LSF (%):</strong> LSF = [ Total_Lung_Counts / (Total_Lung_Counts + Total_Liver_Counts) ] &times; 100</div>
+                        <div><strong>Dose Safety Limits:</strong> Absorbed lung dose &le; 30 Gy (single infusion) and &le; 50 Gy cumulative lifetime limit.</div>
+                    </div>
+                </div>
+
                 <!-- References & Scientific Literature -->
                 <div class="space-y-3 border-t border-slate-100 pt-5">
-                    <h3 class="text-base font-bold text-slate-800">4. Scientific Literature & Clinical Guidelines</h3>
+                    <h3 class="text-base font-bold text-slate-800">5. Scientific Literature & Clinical Guidelines</h3>
                     <ol class="list-decimal list-inside text-xs text-slate-600 space-y-2 leading-relaxed">
                         <li><strong>Chiesa C, Maccauro M, Romito R, et al.</strong> <em>Need, feasibility and convenience of dosimetric treatment planning in liver selective internal radiation therapy with <sup>90</sup>Y microspheres: the EANM guidelines.</em> Eur J Nucl Med Mol Imaging. 2021;48(11):3706-3730.</li>
                         <li><strong>Garin E, Tselikas L, Guiu B, et al.</strong> <em>Personalised versus standard dosimetry approach of selective internal radiation therapy in patients with locally advanced hepatocellular carcinoma (DOSISPHERE-01): a randomised, multicentre, open-label phase 2 trial.</em> Lancet Gastroenterol Hepatol. 2021;6(1):17-29.</li>
